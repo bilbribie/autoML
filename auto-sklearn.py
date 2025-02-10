@@ -3,7 +3,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 
-file_path = "/dataset/Dataset_normalized.csv"
+file_path = "Dataset_normalized.csv"
 df = pd.read_csv(file_path)
 
 df.head()
@@ -19,6 +19,7 @@ results = {}
 for target in targets:
     X = df[features]
     y = df[target]
+    print("process for:",features, target)
 
     # Split data into training and testing sets
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
