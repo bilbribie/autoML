@@ -36,7 +36,7 @@ def model(data , target_column):
     macro_avg_f1 = report['macro avg']['f1-score']
     auc = roc_auc_score(y_test, pred_proba) if len(set(y)) == 2 else "N/A"  # AUC only for binary targets
     
-    return accuracy, report, auc, classifier, X_test, macro_avg_f1
+    return accuracy, report, auc, classifier.show_models(), X_test, macro_avg_f1
 
 # find model 1st rank
 def get_model(classifier):
