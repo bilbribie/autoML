@@ -39,24 +39,30 @@ def model(data , target_column):
     return accuracy, report, auc, classifier.show_models(), X_test, macro_avg_f1
 
 # find model 1st rank
-def get_model(classifier):
-    model_descriptions = classifier.show_models()
-    models_dict = model_descriptions 
-    
+
+def get_model(models_dict):
     # Find the model with rank 1
-    model_info = next((info for info in models_dict.values() if info['rank'] == 1), None)
-    
+    model_info = next((info for info in models_dict.values() if info.get('rank') == 1), None)
+
     if model_info:
-        # Extract `sklearn_regressor` as a string representation
-        sklearn_regressor = str(model_info['sklearn_regressor'])
-        
+        print("DEBUG: model_info structure ->", model_info)  # Print model structure for debugging
+
+        # Extract the sklearn_classifier field
+        if 'sklearn_classifier' in model_info:
+            sklearn_regressor_str = str(model_info['sklearn_classifier'])
+        else:
+            print("ERROR: No 'sklearn_classifier' key found. Available keys:", model_info.keys())
+            return None, None
+
         # Extract only the model name using regex
-        model_name_match = re.match(r'(\w+)\(', sklearn_regressor)
+        model_name_match = re.match(r'(\w+)\(', sklearn_regressor_str)
         model_name = model_name_match.group(1) + "()" if model_name_match else None
-        
-        return model_name, sklearn_regressor
-    
+
+        return model_name, sklearn_regressor_str
+
+    print("ERROR: No model found with rank 1.")
     return None, None
+
 
 # SHAP value
 def shap_values(model_info, X_test, target_column):
