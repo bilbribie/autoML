@@ -10,7 +10,7 @@ import sklearn.datasets
 import sklearn.metrics
 
 # Main function to run auto-sklearn multiple times and calculate averages
-def model(data, target_column):
+def model(data_selected , target_column):
     
     # Load a dataset
     X = data
