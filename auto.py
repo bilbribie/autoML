@@ -71,7 +71,7 @@ def get_model(models_dict):
 def shap_values(model,X_train, X_test, target_column):
     
     print(f"Processing SHAP for{target_column}")
-    explainer = shap.Explainer(model, X_train)
+    explainer = shap.Explainer(model.predict, X_train)
     shap_values = explainer(X_test)
     
     # Plotting SHAP values and save in folder
@@ -100,7 +100,7 @@ if __name__ == "__main__":
         print(f"The best model for {target_column} is {sklearn_regressor}")
         
         # 2. SHAP
-        shap = shap_values(sklearn_regressor, X_train, X_test, target_column)
+        shap = shap_values(model_name, X_train, X_test, target_column)
 
         # Print results
         results.append([target_column, accuracy, auc, macro_avg_f1, sklearn_regressor])
