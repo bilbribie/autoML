@@ -42,7 +42,7 @@ def output(accuracy, classification_report, auc, classifier):
 
 if __name__ == "__main__":
     print("start running")
-    data = pd.read_csv('Dataset_normalized.csv')  
+    data = pd.read_csv('Dataset_eiei.csv')  
     
     # select categories
     target_column = "Generic policy"
@@ -75,7 +75,6 @@ if __name__ == "__main__":
     print(f"accuracy: {accuracy}")
     print(f"Average auc Score: {auc}")
     print(f"report: {classification_report}")
-    print(f"Average auc Score: {auc}")
     print(f"best model:")
     print(classifier.leaderboard())
     
