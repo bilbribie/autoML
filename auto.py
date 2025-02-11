@@ -140,7 +140,7 @@ if __name__ == "__main__":
         
         # 2. SHAP
         #shap = shap_values(model_name, X_train, X_test, target_column)
-        best_model = get_best_model(classifier)
+        best_model = get_best_model(model_name)
         if best_model:
             print(f"The best model for {target_column} is {type(best_model).__name__}")
 
