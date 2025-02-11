@@ -46,8 +46,8 @@ def model(data , target_column):
     best_model = classifier.get_models_with_weights()[0][1] 
     
     print(f"Processing SHAP for{target_column}")
-    explainer = shap.Explainer(best_model.predict, X_train)
-    shap_values = explainer(X_test)
+    explainer = shap.Explainer(best_model)
+    shap_values = explainer.shap_values(X_test)
     
     # Plotting SHAP values and save in folder
     plt.figure()
