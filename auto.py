@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 import sklearn.datasets
 import sklearn.metrics
 
-# Main function to run auto-sklearn multiple times and calculate averages
+# run model
 def model(data , target_column):
     
     X = data.drop(target_column, axis=1)  # Features: all columns except the target
@@ -33,10 +33,7 @@ def model(data , target_column):
     report = classification_report(y_test, y_hat)
     auc = roc_auc_score(y_test, pred_proba) if len(set(y)) == 2 else "N/A"  # AUC only for binary targets
     
-    ensemble = classifier.get_models_with_weights()
-    used_model = max(ensemble, key=lambda x: x[0])
-    
-    return accuracy, report, auc, used_model
+    return accuracy, report, auc, classifier
 
 if __name__ == "__main__":
     print("start running")
@@ -59,11 +56,13 @@ if __name__ == "__main__":
     # #    "project_quality": ["sonarQube_BUG", "sonarQube_VULNERABILITY", "sonarQube_CODE_SMELL"],
     # }
     
-    data_selected = data[list(features) + [target_column]] #select dta
+    data_selected = data[list(features) + [target_column]] #select data
 
-    accuracy, classification_report, auc, used_model = model(data_selected , target_column)
+    #run model
+    accuracy, classification_report, auc, classifier = model(data_selected , target_column)
     print(f"accuracy: {accuracy}")
     print(f"report: {classification_report}")
     print(f"Average auc Score: {auc}")
-    print(f"best model: {used_model}")
+    print(f"best model:")
+    print(classifier.leaderboard())
     
