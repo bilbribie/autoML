@@ -16,7 +16,7 @@ def model(data , target_column):
     y = data[target_column]  # Target: the column named by 'target_column'
     
     # Split the dataset into training and testing data
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.7, random_state=1)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
 
     # Create an AutoSklearn classifier
     classifier = autosklearn.classification.AutoSklearnClassifier(time_left_for_this_task=30)
