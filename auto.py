@@ -26,6 +26,8 @@ def model(data , target_column):
     # Fit the classifier
     classifier.fit(X_train, y_train)
     
+    shap = shap_values(model_name, X_test, target_column)
+    
     # Predictions
     y_hat = classifier.predict(X_test)
     pred_proba = classifier.predict_proba(X_test)[:, 1]  # Probability estimates for the positive class
@@ -45,13 +47,10 @@ def get_model(models_dict):
     model_info = next((info for info in models_dict.values() if info.get('rank') == 1), None)
 
     if model_info:
-        print("DEBUG: model_info structure ->", model_info)  # Print model structure for debugging
-
-        # Extract the sklearn_classifier field
         if 'sklearn_classifier' in model_info:
-            sklearn_regressor_str = str(model_info['sklearn_classifier'])
+            sklearn_regressor_str = str(model_info['sklearn_classifier']) #extract model name
         else:
-            print("ERROR: No 'sklearn_classifier' key found. Available keys:", model_info.keys())
+            print("No 'sklearn_classifier'", model_info.keys())
             return None, None
 
         # Extract only the model name using regex
@@ -60,13 +59,14 @@ def get_model(models_dict):
 
         return model_name, sklearn_regressor_str
 
-    print("ERROR: No model found with rank 1.")
+    print("ERROR")
     return None, None
 
 
 # SHAP value
 def shap_values(model_info, X_test, target_column):
     
+    print(f"Processing SHAP for{target_column}")
     explainer = shap.Explainer(model_info)
     shap_values = explainer(X_test)
     
@@ -75,6 +75,8 @@ def shap_values(model_info, X_test, target_column):
     shap.summary_plot(shap_values, X_test)
     plt.savefig(f'pics/{target_column}_shap.png')
     plt.close()
+    print(f"saved SHAP for{target_column}")
+    
     return 
    
 if __name__ == "__main__":
@@ -90,12 +92,11 @@ if __name__ == "__main__":
         # 1. model train
         data_selected = data.drop([col for col in categories if col != target_column], axis=1)  # Drop other target cols
         accuracy, report, auc, classifier, X_test, macro_avg_f1 = model(data_selected, target_column)
-        print(classifier)
         model_name, sklearn_regressor = get_model(classifier) # get model rank 1
-        print(f"The best model for {target_column} is {model_name}")
+        print(f"The best model for {target_column} is {sklearn_regressor }")
         
-        # 2. SHAP
-        shap = shap_values(model_name, X_test, target_column)
+        # # 2. SHAP
+        # shap = shap_values(model_name, X_test, target_column)
 
         # Print results
         results.append([target_column, accuracy, auc, macro_avg_f1, sklearn_regressor])
