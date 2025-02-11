@@ -46,7 +46,7 @@ if __name__ == "__main__":
     
     # select categories
     target_column = "Generic policy"
-    cat = "Reporting mechanism", "Scope of practice", "User guideline"
+    cat = ["Reporting mechanism", "Scope of practice", "User guideline"]
     #categories = ["Generic policy", "Reporting mechanism", "Scope of practice", "User guideline"]
     
     # select features
