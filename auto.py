@@ -44,7 +44,7 @@ def model(data , target_column):
     
     #shap
     print(f"Processing SHAP for{target_column}")
-    explainer = shap.Explainer(model.predict, X_train)
+    explainer = shap.Explainer(classifier.predict, X_train)
     shap_values = explainer(X_test)
     
     # Plotting SHAP values and save in folder
