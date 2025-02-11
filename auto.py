@@ -33,7 +33,7 @@ def model(data , target_column):
     # Metrics
     accuracy = accuracy_score(y_test, y_pred)
     report = classification_report(y_pred, y_test, output_dict=True)
-    report1 = classification_report(y_pred, y_test, output_dict=True)
+    report1 = classification_report(y_pred, y_test)
     macro_avg_f1 = report['macro avg']['f1-score']
     auc = roc_auc_score(y_test, pred_proba) if len(set(y)) == 2 else "N/A"  # AUC only for binary targets
     print(f"Accuracy: {accuracy}")
@@ -42,7 +42,7 @@ def model(data , target_column):
     print(report1)
     print(f"Macro avg: {macro_avg_f1}")
     
-    return accuracy, report, auc, classifier.show_models(), X_test, macro_avg_f1
+    return accuracy, report, auc, classifier.show_models(),X_train, X_test, macro_avg_f1
 
 # find model 1st rank
 
@@ -68,10 +68,10 @@ def get_model(models_dict):
 
 
 # SHAP value
-def shap_values(model_info, X_test, target_column):
+def shap_values(model,X_train, X_test, target_column):
     
     print(f"Processing SHAP for{target_column}")
-    explainer = shap.Explainer(model_info)
+    explainer = shap.Explainer(model, X_train)
     shap_values = explainer(X_test)
     
     # Plotting SHAP values and save in folder
@@ -95,12 +95,12 @@ if __name__ == "__main__":
         
         # 1. model train
         data_selected = data.drop([col for col in categories if col != target_column], axis=1)  # Drop other target cols
-        accuracy, report, auc, classifier, X_test, macro_avg_f1 = model(data_selected, target_column)
+        accuracy, report, auc, classifier,X_train, X_test, macro_avg_f1 = model(data_selected, target_column)
         model_name, sklearn_regressor = get_model(classifier) # get model rank 1
         print(f"The best model for {target_column} is {sklearn_regressor }")
         
         # 2. SHAP
-        shap = shap_values(model_name, X_test, target_column)
+        shap = shap_values(model_name, X_train, X_test, target_column)
 
         # Print results
         results.append([target_column, accuracy, auc, macro_avg_f1, sklearn_regressor])
