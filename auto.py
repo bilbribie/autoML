@@ -42,6 +42,18 @@ def model(data , target_column):
     print("Classification report:")
     print(report1)
     
+    #shap
+    print(f"Processing SHAP for{target_column}")
+    explainer = shap.Explainer(model.predict, X_train)
+    shap_values = explainer(X_test)
+    
+    # Plotting SHAP values and save in folder
+    plt.figure()
+    shap.summary_plot(shap_values, X_test)
+    plt.savefig(f'pics/{target_column}_shap.png')
+    plt.close()
+    print(f"saved SHAP for{target_column}")
+    
     return accuracy, report, auc, classifier ,X_train, X_test, macro_avg_f1
 
 # find model 1st rank
@@ -67,21 +79,21 @@ def get_model(models_dict):
     return None, None
 
 
-# SHAP value
-def shap_values(model,X_train, X_test, target_column):
+# # SHAP value
+# def shap_values(model,X_train, X_test, target_column):
     
-    print(f"Processing SHAP for{target_column}")
-    explainer = shap.Explainer(model.predict, X_train)
-    shap_values = explainer(X_test)
+#     print(f"Processing SHAP for{target_column}")
+#     explainer = shap.Explainer(model.predict, X_train)
+#     shap_values = explainer(X_test)
     
-    # Plotting SHAP values and save in folder
-    plt.figure()
-    shap.summary_plot(shap_values, X_test)
-    plt.savefig(f'pics/{target_column}_shap.png')
-    plt.close()
-    print(f"saved SHAP for{target_column}")
+#     # Plotting SHAP values and save in folder
+#     plt.figure()
+#     shap.summary_plot(shap_values, X_test)
+#     plt.savefig(f'pics/{target_column}_shap.png')
+#     plt.close()
+#     print(f"saved SHAP for{target_column}")
     
-    return 
+#     return 
    
 if __name__ == "__main__":
     print("start running")
@@ -101,16 +113,6 @@ if __name__ == "__main__":
         
         # 2. SHAP
         #shap = shap_values(model_name, X_train, X_test, target_column)
-        # Extract the trained best model from AutoSklearn
-        best_model_info = classifier.show_models()
-        best_model_id = next((key for key, info in best_model_info.items() if info.get("rank") == 1), None)
-
-        if best_model_id is not None:
-            best_model = classifier.get_models_with_weights()[0][1]  # ✅ Extract trained model
-            shap_values(best_model, X_train, X_test, target_column)  # ✅ Pass trained model
-        else:
-            print(f"ERROR: No best model found for SHAP analysis of {target_column}")
- 
 
         # Print results
         results.append([target_column, accuracy, auc, macro_avg_f1, sklearn_regressor])
