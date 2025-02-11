@@ -39,15 +39,33 @@ def model(data , target_column):
     return accuracy, report, auc, classifier, X_test, macro_avg_f1
 
 # find model 1st rank
+import re
+import json
+
 def get_model(classifier):
     model_descriptions = classifier.show_models()
-    models_dict = eval(model_descriptions)  # ⚠ Be cautious using eval()
+
+    # Print the type of model_descriptions
+    print("DEBUG: Type of model_descriptions ->", type(model_descriptions))
+
+    # Check if the result is already a dictionary
+    if isinstance(model_descriptions, dict):
+        models_dict = model_descriptions  # ✅ No need for eval()
+    elif isinstance(model_descriptions, str):
+        try:
+            models_dict = json.loads(model_descriptions.replace("'", "\""))  # Convert single quotes to double quotes
+        except json.JSONDecodeError:
+            print("ERROR: model_descriptions could not be parsed as JSON.")
+            return None, None
+    else:
+        print("ERROR: Unexpected type from show_models():", type(model_descriptions))
+        return None, None
 
     # Find the model with rank 1
-    model_info = next((info for info in models_dict.values() if info['rank'] == 1), None)
+    model_info = next((info for info in models_dict.values() if info.get('rank') == 1), None)
 
     if model_info:
-        print("DEBUG: model_info structure ->", model_info)  # Print model structure
+        print("DEBUG: model_info structure ->", model_info)
 
         # Try different keys
         possible_keys = ['sklearn_regressor', 'regressor', 'classifier']  # Add more if needed
@@ -59,8 +77,8 @@ def get_model(classifier):
                 break  # Found the key, exit loop
 
         if not sklearn_regressor_str:
-            print("No known regressor keys found. Available keys:", model_info.keys())
-            return None, None  # Handle missing key safely
+            print("ERROR: No known regressor keys found. Available keys:", model_info.keys())
+            return None, None
 
         # Extract only the model name using regex
         model_name_match = re.match(r'(\w+)\(', sklearn_regressor_str)
@@ -97,6 +115,7 @@ if __name__ == "__main__":
         # 1. model train
         data_selected = data.drop([col for col in categories if col != target_column], axis=1)  # Drop other target cols
         accuracy, report, auc, classifier, X_test, macro_avg_f1 = model(data_selected, target_column)
+        print(classifier)
         model_name, sklearn_regressor = get_model(classifier) # get model rank 1
         print(f"The best model for {target_column} is {model_name}")
         
