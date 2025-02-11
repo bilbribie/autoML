@@ -1,5 +1,6 @@
 import autosklearn.classification
 import shap
+shap.initjs()
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -81,35 +82,6 @@ def shap_values(model,X_train, X_test, target_column):
     print(f"saved SHAP for{target_column}")
     
     return 
-
-
-def calculate_and_plot_shap(model, X_train, X_test, target_column): # Add y_test
-    print(f"Processing SHAP for {target_column}")
-
-    # Ensure data types are compatible with SHAP (numerical)
-    X_train = X_train.select_dtypes(include=np.number)
-    X_test = X_test.select_dtypes(include=np.number)
-
-    if X_train.empty or X_test.empty:
-        print(f"Skipping SHAP for {target_column} due to non-numerical features.")
-        return
-
-    try:
-        explainer = shap.Explainer(model.predict_proba, X_train)  # Use predict_proba for classification
-        shap_values = explainer(X_test)
-
-        plt.figure()
-        shap.summary_plot(shap_values, X_test)
-        plt.savefig(f'pics/{target_column}_shap.png')
-        plt.close()
-        print(f"Saved SHAP for {target_column}")
-
-        # Evaluate SHAP explainer (optional, but good practice)
-        # from shap.evaluation import mean_absolute_shap0
-        # print("Mean absolute SHAP0:", mean_absolute_shap0(explainer))
-
-    except Exception as e:
-        print(f"Error calculating/plotting SHAP for {target_column}: {e}")
    
 if __name__ == "__main__":
     print("start running")
@@ -122,7 +94,7 @@ if __name__ == "__main__":
         print(f"Processing for {target_column}")
         
         # 1. model train
-        data_selected = data.drop([col for col in categories if col != target_column], axis=1)  # Drop other target cols
+        data_selected = data.drop([{col for col in categories if col != target_column}, 'project_name'], axis=1)  # Drop other target cols
         accuracy, report, auc, classifier ,X_train, X_test, macro_avg_f1 = model(data_selected, target_column)
         model_name, sklearn_regressor = get_model(classifier.show_models()) # get model rank 1
         print(f"The best model for {target_column} is {sklearn_regressor}")

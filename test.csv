@@ -1,0 +1,10 @@
+Target Column,Accuracy,AUC,Macro Avg F1,Best Model
+Generic policy,0.6777777777777778,0.626571897211591,0.4619666048237477,"RandomForestClassifier(max_features=11, n_estimators=512, n_jobs=1,
+                       random_state=1, warm_start=True)"
+Reporting mechanism,0.9111111111111111,0.2804878048780488,0.47674418604651164,"RandomForestClassifier(max_features=11, n_estimators=512, n_jobs=1,
+                       random_state=1, warm_start=True)"
+Scope of practice,0.5666666666666667,0.597165991902834,0.43848984162534,"RandomForestClassifier(max_features=11, n_estimators=512, n_jobs=1,
+                       random_state=1, warm_start=True)"
+User guideline,0.8222222222222222,0.4231418918918919,0.5061728395061729,"RandomForestClassifier(criterion='entropy', max_features=56, min_samples_leaf=2,
+                       min_samples_split=12, n_estimators=512, n_jobs=1,
+                       random_state=1, warm_start=True)"
