@@ -94,7 +94,7 @@ if __name__ == "__main__":
         print(f"Processing for {target_column}")
         
         # 1. model train
-        data_selected = data.drop([col for col in categories if col != target_column] + ['project_name'], axis=1)
+        data_selected = data.drop(['Generic policy', 'Reporting mechanism', 'Scope of practice', 'User guideline', 'project_name', 'Unnamed: 0'], axis=1)
         accuracy, report, auc, classifier ,X_train, X_test, macro_avg_f1 = model(data_selected, target_column)
         model_name, sklearn_regressor = get_model(classifier.show_models()) # get model rank 1
         print(f"The best model for {target_column} is {sklearn_regressor}")
