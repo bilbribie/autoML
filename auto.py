@@ -50,7 +50,6 @@ def get_model(models_dict):
     # Find the model with rank 1
     model_info = next((info for info in models_dict.values() if info.get('rank') == 1), None)
 
-    hello = classifier.get_models_with_weights()[0][1] 
     if model_info:
         if 'sklearn_classifier' in model_info:
             sklearn_regressor_str = str(model_info['sklearn_classifier']) #extract model name
@@ -62,7 +61,7 @@ def get_model(models_dict):
         model_name_match = re.match(r'(\w+)\(', sklearn_regressor_str)
         model_name = model_name_match.group(1) + "()" if model_name_match else None
 
-        return model_name, sklearn_regressor_str, hello
+        return model_name, sklearn_regressor_str
 
     print("ERROR")
     return None, None
@@ -96,12 +95,22 @@ if __name__ == "__main__":
         
         # 1. model train
         data_selected = data.drop([col for col in categories if col != target_column], axis=1)  # Drop other target cols
-        accuracy, report, auc, classifier,X_train, X_test, macro_avg_f1 = model(data_selected, target_column)
-        model_name, sklearn_regressor, hello = get_model(classifier) # get model rank 1
+        accuracy, report, auc, classifier ,X_train, X_test, macro_avg_f1 = model(data_selected, target_column)
+        model_name, sklearn_regressor = get_model(classifier) # get model rank 1
         print(f"The best model for {target_column} is {sklearn_regressor}")
         
         # 2. SHAP
-        shap = shap_values(hello, X_train, X_test, target_column)
+        #shap = shap_values(model_name, X_train, X_test, target_column)
+        # Extract the trained best model from AutoSklearn
+        best_model_info = classifier.show_models()
+        best_model_id = next((key for key, info in best_model_info.items() if info.get("rank") == 1), None)
+
+        if best_model_id is not None:
+            best_model = classifier.get_models_with_weights()[0][1]  # ✅ Extract trained model
+            shap_values(best_model, X_train, X_test, target_column)  # ✅ Pass trained model
+        else:
+            print(f"ERROR: No best model found for SHAP analysis of {target_column}")
+
 
         # Print results
         results.append([target_column, accuracy, auc, macro_avg_f1, sklearn_regressor])
