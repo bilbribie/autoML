@@ -6,8 +6,9 @@ import matplotlib.pyplot as plt
 from sklearn import metrics
 from sklearn.metrics import accuracy_score, classification_report, roc_auc_score
 from sklearn.model_selection import train_test_split
-import sklearn.datasets
 import sklearn.metrics
+import subprocess
+
 
 # run model
 def model(data , target_column):
@@ -38,38 +39,41 @@ def model(data , target_column):
 # output
 def output(accuracy, classification_report, auc, classifier):
     
+    data = {
+        
+    }
     return 
 
+results = []
+    
+   
 if __name__ == "__main__":
     print("start running")
     data = pd.read_csv('Dataset_eiei.csv')  
+    categories = ["Reporting mechanism", "Scope of practice", "User guideline"]
     
-    # select categories
-    target_column = "Generic policy"
-    cat = ["Reporting mechanism", "Scope of practice", "User guideline"]
-    #categories = ["Generic policy", "Reporting mechanism", "Scope of practice", "User guideline"]
-    
-    # select features
-    #features = "num_commits", "project_age_days", "num_issues", "num_pull"
-    # feature_types = {
-    # "activeness": ["num_commits", "project_age_days", "num_issues", "num_pull"],
-    # "popularity": ["num_stargazers", "num_watchers", "num_forks", "num_subscribers"],
-    # "metadata": ["num_contributors", "project_size(kB)"],
-    # "security_practice": ["ssf0_Binary-Artifacts", "ssf1_Branch-Protection",
-    #                       "ssf3_CII-Best-Practices", "ssf7_Dependency-Update-Tool",
-    #                       "ssf8_Fuzzing", "ssf9_License", "ssf10_Maintained", "ssf13_SAST",
-    #                       "ssf17_Vulnerabilities"],
-    # #    "project_quality": ["sonarQube_BUG", "sonarQube_VULNERABILITY", "sonarQube_CODE_SMELL"],
-    # }
-    
-    #data_selected = data[list(features) + [target_column]] #select data
-    data_selected = data.drop(cat, axis=1) 
+    for target_column in categories:
+        #model train
+        data_selected = data.drop([col for col in categories if col != target_column], axis=1)  # Drop other target cols
+        accuracy, report, auc, classifier, X_test = model(data_selected, target_column)
 
-    #run model
-    accuracy, classification_report, auc, classifier = model(data_selected, target_column)
-    
-    #output
-    output(accuracy, classification_report, auc, classifier)
+        # SHAP values
+        explainer = shap.TreeExplainer(classifier.show_models().estimators_[0][0])  # Using the first estimator in the ensemble
+        shap_values = explainer.shap_values(X_test)
+        
+        # Plot and save SHAP values
+        shap.summary_plot(shap_values, X_test, show=False)
+        plt.savefig(f'pics/{target_column}_shap.png')
+        plt.close()
+        
+        # Save results
+        macro_avg_f1 = report['macro avg']['f1-score']
+        best_model_details = classifier.show_models().models_[0]  # Assuming the first model is the best
+        
+        results.append([target_column, accuracy, auc, macro_avg_f1, str(best_model_details)])
+
+        # Print results
+        print(f"Finished processing {target_column}. Results: Accuracy={accuracy}, AUC={auc}")
     
     # print(f"#########{target_column}:{features}#############")
     print(f"accuracy: {accuracy}")
