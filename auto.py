@@ -25,18 +25,23 @@ def model(data , target_column):
 
     # Fit the classifier
     classifier.fit(X_train, y_train)
-    
-    shap_values(classifier, X_test, target_column)
-    
-    # Predictions
-    y_hat = classifier.predict(X_test)
-    pred_proba = classifier.predict_proba(X_test)[:, 1]  # Probability estimates for the positive class
 
+    # Predictions
+    y_pred = classifier.predict(X_test)
+    pred_proba = classifier.predict_proba(X_test)[:, 1]  # Probability estimates for the positive class
+    
     # Metrics
-    accuracy = accuracy_score(y_test, y_hat)
-    report = classification_report(y_test, y_hat, output_dict=True)
+    accuracy = accuracy_score(y_test, y_pred)
+    report = classification_report(y_pred, y_test, output_dict=True)
     macro_avg_f1 = report['macro avg']['f1-score']
     auc = roc_auc_score(y_test, pred_proba) if len(set(y)) == 2 else "N/A"  # AUC only for binary targets
+    print(f"Accuracy: {accuracy}")
+    print(f"AUC score: {auc}")
+    print("Classification report:")
+    print(report)
+    print(f"Macro avg: {macro_avg_f1}")
+    
+    shap_values(classifier, X_test, target_column)
     
     return accuracy, report, auc, classifier.show_models(), X_test, macro_avg_f1
 
