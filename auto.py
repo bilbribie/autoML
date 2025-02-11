@@ -33,15 +33,14 @@ def model(data , target_column):
     # Metrics
     accuracy = accuracy_score(y_test, y_pred)
     report = classification_report(y_pred, y_test, output_dict=True)
+    report1 = classification_report(y_pred, y_test, output_dict=True)
     macro_avg_f1 = report['macro avg']['f1-score']
     auc = roc_auc_score(y_test, pred_proba) if len(set(y)) == 2 else "N/A"  # AUC only for binary targets
     print(f"Accuracy: {accuracy}")
     print(f"AUC score: {auc}")
     print("Classification report:")
-    print(report)
+    print(report1)
     print(f"Macro avg: {macro_avg_f1}")
-    
-    shap_values(classifier, X_test, target_column)
     
     return accuracy, report, auc, classifier.show_models(), X_test, macro_avg_f1
 
@@ -100,8 +99,8 @@ if __name__ == "__main__":
         model_name, sklearn_regressor = get_model(classifier) # get model rank 1
         print(f"The best model for {target_column} is {sklearn_regressor }")
         
-        # # 2. SHAP
-        # shap = shap_values(model_name, X_test, target_column)
+        # 2. SHAP
+        shap = shap_values(model_name, X_test, target_column)
 
         # Print results
         results.append([target_column, accuracy, auc, macro_avg_f1, sklearn_regressor])
