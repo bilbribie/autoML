@@ -32,10 +32,11 @@ def model(data , target_column):
 
     # Metrics
     accuracy = accuracy_score(y_test, y_hat)
-    report = classification_report(y_test, y_hat)
+    report = classification_report(y_test, y_hat, output_dict=True)
+    macro_avg_f1 = report['macro avg']['f1-score']
     auc = roc_auc_score(y_test, pred_proba) if len(set(y)) == 2 else "N/A"  # AUC only for binary targets
     
-    return accuracy, report, auc, classifier, X_test
+    return accuracy, report, auc, classifier, X_test, macro_avg_f1
 
 # find model 1st rank
 def get_model(classifier):
@@ -82,8 +83,7 @@ if __name__ == "__main__":
         
         # 1. model train
         data_selected = data.drop([col for col in categories if col != target_column], axis=1)  # Drop other target cols
-        accuracy, report, auc, classifier, X_test = model(data_selected, target_column)
-        macro_avg_f1 = report['macro avg']['f1-score'] #get macro_avg_f1
+        accuracy, report, auc, classifier, X_test, macro_avg_f1 = model(data_selected, target_column)
         model_name, sklearn_regressor = get_model(classifier) # get model rank 1
         print(f"The best model for {target_column} is {model_name}")
         
