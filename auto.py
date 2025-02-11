@@ -5,42 +5,35 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn import metrics
 from sklearn.metrics import accuracy_score, classification_report, roc_auc_score
-import sklearn.model_selection
+from sklearn.model_selection import train_test_split
 import sklearn.datasets
 import sklearn.metrics
 
 # Main function to run auto-sklearn multiple times and calculate averages
 def model(data_selected , target_column):
     
-    # Load a dataset
-    X = data_selected(target_column, axis=1)
-    y = data[target_column]
-
+    X = data.drop(target_column, axis=1)  # Features: all columns except the target
+    y = data[target_column]  # Target: the column named by 'target_column'
+    
     # Split the dataset into training and testing data
-    X_train, X_test, y_train, y_test = sklearn.model_selection.train_test_split(X, y, random_state=1)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.7, random_state=1)
 
     # Create an AutoSklearn classifier
-    model = autosklearn.classification.AutoSklearnClassifier()
-    #time_left_for_this_task=120, per_run_time_limit=30
+    classifier = autosklearn.classification.AutoSklearnClassifier()
 
-    # Fit the model
-    model.fit(X_train, y_train)
+    # Fit the classifier
+    classifier.fit(X_train, y_train)
     
-    y_hat = model.predict(X_test) # prediction
-    pred = model.predict_proba(X_test)[:, 1]  #auc
+    # Predictions
+    y_hat = classifier.predict(X_test)
+    pred_proba = classifier.predict_proba(X_test)[:, 1]  # Probability estimates for the positive class
+
+    # Metrics
+    accuracy = accuracy_score(y_test, y_hat)
+    report = classification_report(y_test, y_hat)
+    auc = roc_auc_score(y_test, pred_proba) if len(set(y)) == 2 else "N/A"  # AUC only for binary targets
     
-    accuracy = sklearn.metrics.accuracy_score(y_test, y_hat)
-    #print("Accuracy score", sklearn.metrics.accuracy_score(y_test, y_hat))
-    
-    #   Evaluate the model
-    classification_report(y_test, y_hat)
-    #print(classification_report)
-    
-    fpr, tpr, thresholds = metrics.roc_curve(y, pred, pos_label=2)
-    auc = metrics.auc(fpr, tpr)
-    #print("AUC:", auc)
-    
-    return accuracy, classification_report, auc
+    return accuracy, report, auc
 
 if __name__ == "__main__":
     print("start running")
