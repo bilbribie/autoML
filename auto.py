@@ -42,7 +42,7 @@ def model(data , target_column):
     print("Classification report:")
     print(report1)
     
-    return accuracy, report, auc, classifier.show_models(),X_train, X_test, macro_avg_f1
+    return accuracy, report, auc, classifier ,X_train, X_test, macro_avg_f1
 
 # find model 1st rank
 
@@ -96,7 +96,7 @@ if __name__ == "__main__":
         # 1. model train
         data_selected = data.drop([col for col in categories if col != target_column], axis=1)  # Drop other target cols
         accuracy, report, auc, classifier ,X_train, X_test, macro_avg_f1 = model(data_selected, target_column)
-        model_name, sklearn_regressor = get_model(classifier) # get model rank 1
+        model_name, sklearn_regressor = get_model(classifier.show_models()) # get model rank 1
         print(f"The best model for {target_column} is {sklearn_regressor}")
         
         # 2. SHAP
@@ -110,7 +110,7 @@ if __name__ == "__main__":
             shap_values(best_model, X_train, X_test, target_column)  # ✅ Pass trained model
         else:
             print(f"ERROR: No best model found for SHAP analysis of {target_column}")
-
+ 
 
         # Print results
         results.append([target_column, accuracy, auc, macro_avg_f1, sklearn_regressor])
