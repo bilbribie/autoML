@@ -46,6 +46,17 @@ def model(data , target_column):
     print(f"AUC score: {auc}")
     print("Classification report:")
     print(report1)
+    
+    print(f"Processing SHAP for{target_column}")
+    explainer = shap.Explainer(classifier.predict, X_train)
+    shap_values = explainer(X_test)
+    
+    # Plotting SHAP values and save in folder
+    plt.figure()
+    shap.summary_plot(shap_values, X_test)
+    plt.savefig(f'pics/{target_column}_shap.png')
+    plt.close()
+    print(f"saved SHAP for{target_column}")
 
     return accuracy, report, auc, classifier ,X_train, X_test, macro_avg_f1
 
@@ -72,27 +83,21 @@ def get_model(models_dict):
     return None, None
 
 
-# # SHAP value
-# def shap_values(model,X_train, X_test, target_column):
+# SHAP value
+def shap_values(model,X_train, X_test, target_column):
     
-#     print(f"Processing SHAP for{target_column}")
-#     explainer = shap.Explainer(model.predict, X_train)
-#     shap_values = explainer(X_test)
+    print(f"Processing SHAP for{target_column}")
+    explainer = shap.Explainer(model.predict, X_train)
+    shap_values = explainer(X_test)
     
-#     # Plotting SHAP values and save in folder
-#     plt.figure()
-#     shap.summary_plot(shap_values, X_test)
-#     plt.savefig(f'pics/{target_column}_shap.png')
-#     plt.close()
-#     print(f"saved SHAP for{target_column}")
+    # Plotting SHAP values and save in folder
+    plt.figure()
+    shap.summary_plot(shap_values, X_test)
+    plt.savefig(f'pics/{target_column}_shap.png')
+    plt.close()
+    print(f"saved SHAP for{target_column}")
     
-#     return 
-
-def get_best_model(autosklearn_classifier):
-    automl_object = autosklearn_classifier.automl_  # Access the underlying automl object
-    best_model_key = automl_object.best_model_  # Get the key of the best model
-    best_model = automl_object.models_[best_model_key]['data_preprocessor'] # Access the preprocessor
-    return best_model
+    return 
 
 
 def calculate_and_plot_shap(model, X_train, X_test, target_column): # Add y_test
@@ -140,14 +145,7 @@ if __name__ == "__main__":
         print(f"The best model for {target_column} is {sklearn_regressor}")
         
         # 2. SHAP
-        #shap = shap_values(model_name, X_train, X_test, target_column)
-        best_model = get_best_model(model_name)
-        if best_model:
-            print(f"The best model for {target_column} is {type(best_model).__name__}")
-
-            # Compute SHAP values
-            calculate_and_plot_shap(best_model, X_train, X_test, target_column) # Pass y_test
-
+        # shap = shap_values(model_name, X_train, X_test, target_column)
 
         # Print results
         results.append([target_column, accuracy, auc, macro_avg_f1, sklearn_regressor])
