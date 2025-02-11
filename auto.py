@@ -49,9 +49,6 @@ def model(data , target_column):
     
     #shap
     best_model = classifier.get_models_with_weights()[0][1] 
-
-    X_train = X_train.select_dtypes(include=[np.number])
-    X_test = X_test.select_dtypes(include=[np.number])
     
     print(f"Processing SHAP for{target_column}")
     explainer = shap.Explainer(lambda X: best_model.predict_proba(X), X_train)
