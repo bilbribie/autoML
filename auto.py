@@ -13,8 +13,8 @@ import sklearn.metrics
 def model(data_selected , target_column):
     
     # Load a dataset
-    X = data
-    y = target_column
+    X = data_selected(target_column, axis=1)
+    y = data[target_column]
 
     # Split the dataset into training and testing data
     X_train, X_test, y_train, y_test = sklearn.model_selection.train_test_split(X, y, random_state=1)
@@ -43,6 +43,7 @@ def model(data_selected , target_column):
     return accuracy, classification_report, auc
 
 if __name__ == "__main__":
+    print("start running")
     data = pd.read_csv('Dataset_normalized.csv')  
     
     # select categories
