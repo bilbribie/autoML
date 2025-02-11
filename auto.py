@@ -104,20 +104,25 @@ def get_best_model(classifier):
 def compute_shap(best_model, X_train, X_test, target_column):
     print(f"Processing SHAP for {target_column}")
 
+    # Transform input data to match AutoSklearn pipeline expectations
+    X_train_transformed = best_model.pipeline_.transform(X_train)
+    X_test_transformed = best_model.pipeline_.transform(X_test)
+
     # Ensure numeric data
-    X_train = X_train.select_dtypes(include=[np.number])
-    X_test = X_test.select_dtypes(include=[np.number])
+    X_train_transformed = pd.DataFrame(X_train_transformed)
+    X_test_transformed = pd.DataFrame(X_test_transformed)
 
     # Create SHAP explainer
-    explainer = shap.Explainer(lambda X: best_model.predict_proba(X), X_train)
-    shap_values = explainer(X_test)
-    
+    explainer = shap.Explainer(lambda X: best_model.predict_proba(X), X_train_transformed)
+    shap_values = explainer(X_test_transformed)
+
     # Plot and save SHAP summary
     plt.figure()
-    shap.summary_plot(shap_values, X_test, show=False)
+    shap.summary_plot(shap_values, X_test_transformed, show=False)
     plt.savefig(f'pics/{target_column}_shap.png')
     plt.close()
     print(f"Saved SHAP for {target_column}")
+    
    
 if __name__ == "__main__":
     print("start running")
