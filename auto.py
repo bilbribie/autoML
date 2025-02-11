@@ -45,6 +45,9 @@ def model(data , target_column):
     #shap
     best_model = classifier.get_models_with_weights()[0][1] 
     
+    X_train = X_train.apply(pd.to_numeric, errors='coerce')
+    X_test = X_test.apply(pd.to_numeric, errors='coerce')
+
     print(f"Processing SHAP for{target_column}")
     explainer = shap.Explainer(best_model.predict_proba, X_train)
     shap_values = explainer.shap_values(X_test)
