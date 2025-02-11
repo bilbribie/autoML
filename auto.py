@@ -49,10 +49,17 @@ def get_model(classifier):
     if model_info:
         print("DEBUG: model_info structure ->", model_info)  # Print model structure
 
-        if 'sklearn_regressor' in model_info:
-            sklearn_regressor_str = str(model_info['sklearn_regressor'])
-        else:
-            print("Key 'sklearn_regressor' not found. Available keys:", model_info.keys())
+        # Try different keys
+        possible_keys = ['sklearn_regressor', 'regressor', 'classifier']  # Add more if needed
+        sklearn_regressor_str = None
+
+        for key in possible_keys:
+            if key in model_info:
+                sklearn_regressor_str = str(model_info[key])
+                break  # Found the key, exit loop
+
+        if not sklearn_regressor_str:
+            print("No known regressor keys found. Available keys:", model_info.keys())
             return None, None  # Handle missing key safely
 
         # Extract only the model name using regex
@@ -62,6 +69,7 @@ def get_model(classifier):
         return model_name, sklearn_regressor_str
 
     return None, None
+
 
 # SHAP value
 def shap_values(model_info, X_test, target_column):
