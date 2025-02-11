@@ -10,9 +10,14 @@ import sklearn.metrics
 import subprocess
 import re
 
+def preprocess_data(data):
+    for col in data.select_dtypes(include=['object']).columns:
+        data[col] = data[col].astype(str)  # Convert categorical/text to string
+    return data
 
 # run model
 def model(data , target_column):
+    data = preprocess_data(data)
     
     X = data.drop(target_column, axis=1)  # Features: all columns except the target
     y = data[target_column]  # Target: the column named by 'target_column'
@@ -44,9 +49,6 @@ def model(data , target_column):
     
     #shap
     best_model = classifier.get_models_with_weights()[0][1] 
-    
-    X_train = X_train.apply(pd.to_numeric, errors='coerce')
-    X_test = X_test.apply(pd.to_numeric, errors='coerce')
 
     print(f"Processing SHAP for{target_column}")
     explainer = shap.Explainer(best_model.predict_proba, X_train)
