@@ -32,7 +32,9 @@ def model(data , target_column):
     accuracy = accuracy_score(y_test, y_hat)
     report = classification_report(y_test, y_hat)
     auc = roc_auc_score(y_test, pred_proba) if len(set(y)) == 2 else "N/A"  # AUC only for binary targets
-    used_model = classifier.show_models()
+    
+    ensemble = classifier.get_models_with_weights()
+    used_model = max(ensemble, key=lambda x: x[0])
     
     return accuracy, report, auc, used_model
 
@@ -59,9 +61,9 @@ if __name__ == "__main__":
     
     data_selected = data[list(features) + [target_column]] #select dta
 
-    accuracy, classification_report, auc, classification = model(data_selected , target_column)
+    accuracy, classification_report, auc, used_model = model(data_selected , target_column)
     print(f"accuracy: {accuracy}")
     print(f"report: {classification_report}")
     print(f"Average auc Score: {auc}")
-    print(f"Params Score: {classification}")
+    print(f"best model: {used_model}")
     
