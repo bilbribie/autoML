@@ -10,14 +10,8 @@ import sklearn.metrics
 import subprocess
 import re
 
-def preprocess_data(data):
-    for col in data.select_dtypes(include=['object']).columns:
-        data[col] = data[col].astype(str)  # Convert categorical/text to string
-    return data
-
 # run model
 def model(data , target_column):
-    data = preprocess_data(data)
     
     X = data.drop(target_column, axis=1)  # Features: all columns except the target
     y = data[target_column]  # Target: the column named by 'target_column'
