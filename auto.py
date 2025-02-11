@@ -41,17 +41,6 @@ def model(data , target_column):
     print("Classification report:")
     print(report1)
     
-    print(f"Processing SHAP for{target_column}")
-    explainer = shap.Explainer(classifier.predict, X_train)
-    shap_values = explainer(X_test)
-    
-    # Plotting SHAP values and save in folder
-    plt.figure()
-    shap.summary_plot(shap_values, X_test)
-    plt.savefig(f'pics/{target_column}_shap.png')
-    plt.close()
-    print(f"saved SHAP for{target_column}")
-
     return accuracy, report, auc, classifier ,X_train, X_test, macro_avg_f1
 
 # find model 1st rank
