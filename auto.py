@@ -10,7 +10,7 @@ import sklearn.datasets
 import sklearn.metrics
 
 # Main function to run auto-sklearn multiple times and calculate averages
-def model(data_selected , target_column):
+def model(data , target_column):
     
     X = data.drop(target_column, axis=1)  # Features: all columns except the target
     y = data[target_column]  # Target: the column named by 'target_column'
@@ -19,7 +19,7 @@ def model(data_selected , target_column):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.7, random_state=1)
 
     # Create an AutoSklearn classifier
-    classifier = autosklearn.classification.AutoSklearnClassifier()
+    classifier = autosklearn.classification.AutoSklearnClassifier(time_left_for_this_task=120)
 
     # Fit the classifier
     classifier.fit(X_train, y_train)
@@ -33,7 +33,7 @@ def model(data_selected , target_column):
     report = classification_report(y_test, y_hat)
     auc = roc_auc_score(y_test, pred_proba) if len(set(y)) == 2 else "N/A"  # AUC only for binary targets
     
-    return accuracy, report, auc
+    return accuracy, report, auc, classifier
 
 if __name__ == "__main__":
     print("start running")
@@ -58,8 +58,9 @@ if __name__ == "__main__":
     
     data_selected = data[list(features) + [target_column]] #select dta
 
-    accuracy, classification_report, auc = model(data_selected , target_column)
+    accuracy, classification_report, auc, classification = model(data_selected , target_column)
     print(f"accuracy: {accuracy}")
     print(f"report: {classification_report}")
     print(f"Average auc Score: {auc}")
+    print(f"Params Score: {classification}")
     
