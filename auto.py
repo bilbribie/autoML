@@ -19,7 +19,7 @@ def model(data , target_column):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.7, random_state=1)
 
     # Create an AutoSklearn classifier
-    classifier = autosklearn.classification.AutoSklearnClassifier(time_left_for_this_task=60)
+    classifier = autosklearn.classification.AutoSklearnClassifier(time_left_for_this_task=30)
 
     # Fit the classifier
     classifier.fit(X_train, y_train)
@@ -35,16 +35,21 @@ def model(data , target_column):
     
     return accuracy, report, auc, classifier
 
+# output
+def output(accuracy, classification_report, auc, classifier):
+    
+    return 
+
 if __name__ == "__main__":
     print("start running")
     data = pd.read_csv('Dataset_normalized.csv')  
     
     # select categories
-    target_column = 'Generic policy' 
+    target_column = "Generic policy", "Reporting mechanism", "Scope of practice", "User guideline"
     #categories = ["Generic policy", "Reporting mechanism", "Scope of practice", "User guideline"]
     
     # select features
-    features = "num_commits", "project_age_days", "num_issues", "num_pull"
+    #features = "num_commits", "project_age_days", "num_issues", "num_pull"
     # feature_types = {
     # "activeness": ["num_commits", "project_age_days", "num_issues", "num_pull"],
     # "popularity": ["num_stargazers", "num_watchers", "num_forks", "num_subscribers"],
@@ -56,11 +61,17 @@ if __name__ == "__main__":
     # #    "project_quality": ["sonarQube_BUG", "sonarQube_VULNERABILITY", "sonarQube_CODE_SMELL"],
     # }
     
-    data_selected = data[list(features) + [target_column]] #select data
+    #data_selected = data[list(features) + [target_column]] #select data
 
     #run model
-    accuracy, classification_report, auc, classifier = model(data_selected , target_column)
+    accuracy, classification_report, auc, classifier = model(data, target_column)
+    
+    #output
+    output(accuracy, classification_report, auc, classifier)
+    
+    # print(f"#########{target_column}:{features}#############")
     print(f"accuracy: {accuracy}")
+    print(f"Average auc Score: {auc}")
     print(f"report: {classification_report}")
     print(f"Average auc Score: {auc}")
     print(f"best model:")
