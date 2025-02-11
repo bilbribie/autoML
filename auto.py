@@ -41,21 +41,26 @@ def model(data , target_column):
 # find model 1st rank
 def get_model(classifier):
     model_descriptions = classifier.show_models()
-    models_dict = model_descriptions
-    
+    models_dict = eval(model_descriptions)  # ⚠ Be cautious using eval()
+
     # Find the model with rank 1
     model_info = next((info for info in models_dict.values() if info['rank'] == 1), None)
-    
+
     if model_info:
-        # Extract `sklearn_regressor` as a string representation
-        sklearn_regressor_str = str(model_info['sklearn_regressor'])
-        
+        print("DEBUG: model_info structure ->", model_info)  # Print model structure
+
+        if 'sklearn_regressor' in model_info:
+            sklearn_regressor_str = str(model_info['sklearn_regressor'])
+        else:
+            print("Key 'sklearn_regressor' not found. Available keys:", model_info.keys())
+            return None, None  # Handle missing key safely
+
         # Extract only the model name using regex
         model_name_match = re.match(r'(\w+)\(', sklearn_regressor_str)
         model_name = model_name_match.group(1) + "()" if model_name_match else None
-        
+
         return model_name, sklearn_regressor_str
-    
+
     return None, None
 
 # SHAP value
