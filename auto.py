@@ -88,41 +88,39 @@ def get_model(models_dict):
     
 #     return 
 
-# Get the best model from AutoSklearn
-def get_best_model(classifier):
-    models = classifier.get_models_with_weights()
-    
-    if not models:
-        print("No models found.")
-        return None
-    
-    best_model = models[0][1]  # First model in the ranked list (highest weight)
-    
+def get_best_model(autosklearn_classifier):  # More descriptive name
+    best_model_key = autosklearn_classifier.get_best_model()
+    best_model = autosklearn_classifier.models_[best_model_key]['data_preprocessor']
     return best_model
 
-# Compute SHAP values and save plot
-def compute_shap(best_model, X_train, X_test, target_column):
+
+def calculate_and_plot_shap(model, X_train, X_test, target_column): # Add y_test
     print(f"Processing SHAP for {target_column}")
 
-    # Transform input data to match AutoSklearn pipeline expectations
-    X_train_transformed = best_model.pipeline_.transform(X_train)
-    X_test_transformed = best_model.pipeline_.transform(X_test)
+    # Ensure data types are compatible with SHAP (numerical)
+    X_train = X_train.select_dtypes(include=np.number)
+    X_test = X_test.select_dtypes(include=np.number)
 
-    # Ensure numeric data
-    X_train_transformed = pd.DataFrame(X_train_transformed)
-    X_test_transformed = pd.DataFrame(X_test_transformed)
+    if X_train.empty or X_test.empty:
+        print(f"Skipping SHAP for {target_column} due to non-numerical features.")
+        return
 
-    # Create SHAP explainer
-    explainer = shap.Explainer(lambda X: best_model.predict_proba(X), X_train_transformed)
-    shap_values = explainer(X_test_transformed)
+    try:
+        explainer = shap.Explainer(model.predict_proba, X_train)  # Use predict_proba for classification
+        shap_values = explainer(X_test)
 
-    # Plot and save SHAP summary
-    plt.figure()
-    shap.summary_plot(shap_values, X_test_transformed, show=False)
-    plt.savefig(f'pics/{target_column}_shap.png')
-    plt.close()
-    print(f"Saved SHAP for {target_column}")
-    
+        plt.figure()
+        shap.summary_plot(shap_values, X_test)
+        plt.savefig(f'pics/{target_column}_shap.png')
+        plt.close()
+        print(f"Saved SHAP for {target_column}")
+
+        # Evaluate SHAP explainer (optional, but good practice)
+        # from shap.evaluation import mean_absolute_shap0
+        # print("Mean absolute SHAP0:", mean_absolute_shap0(explainer))
+
+    except Exception as e:
+        print(f"Error calculating/plotting SHAP for {target_column}: {e}")
    
 if __name__ == "__main__":
     print("start running")
@@ -147,7 +145,8 @@ if __name__ == "__main__":
             print(f"The best model for {target_column} is {type(best_model).__name__}")
 
             # Compute SHAP values
-            compute_shap(best_model, X_train, X_test, target_column)
+            calculate_and_plot_shap(best_model, X_train, X_test, target_column) # Pass y_test
+
 
         # Print results
         results.append([target_column, accuracy, auc, macro_avg_f1, sklearn_regressor])
