@@ -88,9 +88,10 @@ def get_model(models_dict):
     
 #     return 
 
-def get_best_model(autosklearn_classifier):  # More descriptive name
-    best_model_key = autosklearn_classifier.get_best_model()
-    best_model = autosklearn_classifier.models_[best_model_key]['data_preprocessor']
+def get_best_model(autosklearn_classifier):
+    automl_object = autosklearn_classifier.automl_  # Access the underlying automl object
+    best_model_key = automl_object.best_model_  # Get the key of the best model
+    best_model = automl_object.models_[best_model_key]['data_preprocessor'] # Access the preprocessor
     return best_model
 
 
