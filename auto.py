@@ -45,7 +45,8 @@ if __name__ == "__main__":
     data = pd.read_csv('Dataset_normalized.csv')  
     
     # select categories
-    target_column = "Generic policy", "Reporting mechanism", "Scope of practice", "User guideline"
+    target_column = "Generic policy"
+    cat = "Reporting mechanism", "Scope of practice", "User guideline"
     #categories = ["Generic policy", "Reporting mechanism", "Scope of practice", "User guideline"]
     
     # select features
@@ -62,9 +63,10 @@ if __name__ == "__main__":
     # }
     
     #data_selected = data[list(features) + [target_column]] #select data
+    data_selected = data.drop(cat, axis=1) 
 
     #run model
-    accuracy, classification_report, auc, classifier = model(data, target_column)
+    accuracy, classification_report, auc, classifier = model(data_selected, target_column)
     
     #output
     output(accuracy, classification_report, auc, classifier)
