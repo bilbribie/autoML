@@ -42,7 +42,6 @@ def model(data, target_column):
     
     return accuracy, classification_report, auc
 
-# Example usage
 if __name__ == "__main__":
     data = pd.read_csv('Dataset_normalized.csv')  
     
@@ -62,8 +61,10 @@ if __name__ == "__main__":
     #                       "ssf17_Vulnerabilities"],
     # #    "project_quality": ["sonarQube_BUG", "sonarQube_VULNERABILITY", "sonarQube_CODE_SMELL"],
     # }
+    
+    data_selected = data[list(features) + [target_column]]
 
-    accuracy, classification_report, auc = model(data[features], target_column)
+    accuracy, classification_report, auc = model(data_selected , target_column)
     print(f"accuracy: {accuracy}")
     print(f"report: {classification_report}")
     print(f"Average auc Score: {auc}")
