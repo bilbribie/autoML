@@ -46,21 +46,7 @@ def model(data , target_column):
     print(f"AUC score: {auc}")
     print("Classification report:")
     print(report1)
-    
-    #shap
-    best_model = classifier.get_models_with_weights()[0][1] 
-    
-    print(f"Processing SHAP for{target_column}")
-    explainer = shap.Explainer(lambda X: best_model.predict_proba(X), X_train)
-    shap_values = explainer.shap_values(X_test)
-    
-    # Plotting SHAP values and save in folder
-    plt.figure()
-    shap.summary_plot(shap_values, X_test)
-    plt.savefig(f'pics/{target_column}_shap.png')
-    plt.close()
-    print(f"saved SHAP for{target_column}")
-    
+
     return accuracy, report, auc, classifier ,X_train, X_test, macro_avg_f1
 
 # find model 1st rank
@@ -101,6 +87,37 @@ def get_model(models_dict):
 #     print(f"saved SHAP for{target_column}")
     
 #     return 
+
+# Get the best model from AutoSklearn
+def get_best_model(classifier):
+    models = classifier.get_models_with_weights()
+    
+    if not models:
+        print("No models found.")
+        return None
+    
+    best_model = models[0][1]  # First model in the ranked list (highest weight)
+    
+    return best_model
+
+# Compute SHAP values and save plot
+def compute_shap(best_model, X_train, X_test, target_column):
+    print(f"Processing SHAP for {target_column}")
+
+    # Ensure numeric data
+    X_train = X_train.select_dtypes(include=[np.number])
+    X_test = X_test.select_dtypes(include=[np.number])
+
+    # Create SHAP explainer
+    explainer = shap.Explainer(lambda X: best_model.predict_proba(X), X_train)
+    shap_values = explainer(X_test)
+    
+    # Plot and save SHAP summary
+    plt.figure()
+    shap.summary_plot(shap_values, X_test, show=False)
+    plt.savefig(f'pics/{target_column}_shap.png')
+    plt.close()
+    print(f"Saved SHAP for {target_column}")
    
 if __name__ == "__main__":
     print("start running")
@@ -120,6 +137,12 @@ if __name__ == "__main__":
         
         # 2. SHAP
         #shap = shap_values(model_name, X_train, X_test, target_column)
+        best_model = get_best_model(classifier)
+        if best_model:
+            print(f"The best model for {target_column} is {type(best_model).__name__}")
+
+            # Compute SHAP values
+            compute_shap(best_model, X_train, X_test, target_column)
 
         # Print results
         results.append([target_column, accuracy, auc, macro_avg_f1, sklearn_regressor])
