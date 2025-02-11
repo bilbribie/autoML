@@ -41,7 +41,7 @@ def model(data , target_column):
 # find model 1st rank
 def get_model(classifier):
     model_descriptions = classifier.show_models()
-    models_dict = eval(model_descriptions)  # ⚠ Be cautious using eval()
+    models_dict = model_descriptions
     
     # Find the model with rank 1
     model_info = next((info for info in models_dict.values() if info['rank'] == 1), None)
