@@ -16,7 +16,6 @@ def model(data, target_column):
     X = data
     y = target_column
 
-    pred = model.predict_proba(X_test)[:, 1] 
     # Split the dataset into training and testing data
     X_train, X_test, y_train, y_test = sklearn.model_selection.train_test_split(X, y, random_state=1)
 
@@ -28,6 +27,7 @@ def model(data, target_column):
     model.fit(X_train, y_train)
     
     y_hat = model.predict(X_test) # prediction
+    pred = model.predict_proba(X_test)[:, 1]  #auc
     
     accuracy = sklearn.metrics.accuracy_score(y_test, y_hat)
     #print("Accuracy score", sklearn.metrics.accuracy_score(y_test, y_hat))
@@ -62,7 +62,7 @@ if __name__ == "__main__":
     # #    "project_quality": ["sonarQube_BUG", "sonarQube_VULNERABILITY", "sonarQube_CODE_SMELL"],
     # }
     
-    data_selected = data[list(features) + [target_column]]
+    data_selected = data[list(features) + [target_column]] #select dta
 
     accuracy, classification_report, auc = model(data_selected , target_column)
     print(f"accuracy: {accuracy}")
