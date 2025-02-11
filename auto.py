@@ -39,55 +39,24 @@ def model(data , target_column):
     return accuracy, report, auc, classifier, X_test, macro_avg_f1
 
 # find model 1st rank
-import re
-import json
-
 def get_model(classifier):
     model_descriptions = classifier.show_models()
-
-    # Print the type of model_descriptions
-    print("DEBUG: Type of model_descriptions ->", type(model_descriptions))
-
-    # Check if the result is already a dictionary
-    if isinstance(model_descriptions, dict):
-        models_dict = model_descriptions  # ✅ No need for eval()
-    elif isinstance(model_descriptions, str):
-        try:
-            models_dict = json.loads(model_descriptions.replace("'", "\""))  # Convert single quotes to double quotes
-        except json.JSONDecodeError:
-            print("ERROR: model_descriptions could not be parsed as JSON.")
-            return None, None
-    else:
-        print("ERROR: Unexpected type from show_models():", type(model_descriptions))
-        return None, None
-
+    models_dict = model_descriptions 
+    
     # Find the model with rank 1
-    model_info = next((info for info in models_dict.values() if info.get('rank') == 1), None)
-
+    model_info = next((info for info in models_dict.values() if info['rank'] == 1), None)
+    
     if model_info:
-        print("DEBUG: model_info structure ->", model_info)
-
-        # Try different keys
-        possible_keys = ['sklearn_regressor', 'regressor', 'classifier']  # Add more if needed
-        sklearn_regressor_str = None
-
-        for key in possible_keys:
-            if key in model_info:
-                sklearn_regressor_str = str(model_info[key])
-                break  # Found the key, exit loop
-
-        if not sklearn_regressor_str:
-            print("ERROR: No known regressor keys found. Available keys:", model_info.keys())
-            return None, None
-
+        # Extract `sklearn_regressor` as a string representation
+        sklearn_regressor = str(model_info['sklearn_regressor'])
+        
         # Extract only the model name using regex
-        model_name_match = re.match(r'(\w+)\(', sklearn_regressor_str)
+        model_name_match = re.match(r'(\w+)\(', sklearn_regressor)
         model_name = model_name_match.group(1) + "()" if model_name_match else None
-
-        return model_name, sklearn_regressor_str
-
+        
+        return model_name, sklearn_regressor
+    
     return None, None
-
 
 # SHAP value
 def shap_values(model_info, X_test, target_column):
@@ -115,7 +84,6 @@ if __name__ == "__main__":
         # 1. model train
         data_selected = data.drop([col for col in categories if col != target_column], axis=1)  # Drop other target cols
         accuracy, report, auc, classifier, X_test, macro_avg_f1 = model(data_selected, target_column)
-        print(classifier)
         model_name, sklearn_regressor = get_model(classifier) # get model rank 1
         print(f"The best model for {target_column} is {model_name}")
         
