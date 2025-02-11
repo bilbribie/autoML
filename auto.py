@@ -56,10 +56,17 @@ def run_model_selection(data, target_column):
 
 # Git operations
 def git_operations():
-    # subprocess.run(["git", "pull", "origin", "main"])
-    subprocess.run(["git", "add", "."])
-    subprocess.run(["git", "commit", "-m", "Updated model evaluations with auto-sklearn and SHAP value calculations"])
-    subprocess.run(["git", "push", "origin", "main"])
+    try:
+        subprocess.run(["git", "pull", "origin", "main"], check=True)
+        subprocess.run(["git", "add", "."], check=True)
+        commit_message = "Updated model"
+        subprocess.run(["git", "commit", "-m", commit_message], check=True)
+        subprocess.run(["git", "push", "origin", "main"], check=True)
+
+        print("อัพแล้วจ้า")
+
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Git operation failed: {e}")
 
 # Example usage
 if __name__ == "__main__":
