@@ -26,7 +26,7 @@ def model(data , target_column):
     # Fit the classifier
     classifier.fit(X_train, y_train)
     
-    shap = shap_values(model_name, X_test, target_column)
+    shap_values(classifier, X_test, target_column)
     
     # Predictions
     y_hat = classifier.predict(X_test)
