@@ -53,16 +53,16 @@ def get_model(models_dict):
 
     if model_info:
         if 'sklearn_classifier' in model_info:
-            sklearn_regressor_str = str(model_info['sklearn_classifier']) #extract model name
+            sklearn_regressor = model_info['sklearn_classifier'] #extract model name
         else:
             print("No 'sklearn_classifier'", model_info.keys())
             return None, None
 
         # Extract only the model name using regex
-        model_name_match = re.match(r'(\w+)\(', sklearn_regressor_str)
+        model_name_match = re.match(r'(\w+)\(', sklearn_regressor)
         model_name = model_name_match.group(1) if model_name_match else None
 
-        return model_name, sklearn_regressor_str
+        return model_name, sklearn_regressor
 
     print("ERROR")
     return None, None
@@ -115,7 +115,7 @@ if __name__ == "__main__":
         print(f"The best model for {target_column} is {sklearn_regressor}")
         
         # 2. SHAP
-        shap = shap_values(sklearn_regressor,target_column, X_train, X_test, y_train, y_test)
+        shap_values(sklearn_regressor,target_column, X_train, X_test, y_train, y_test)
 
         # Print results
         results.append([target_column, accuracy, auc, macro_avg_f1, sklearn_regressor])
