@@ -38,16 +38,12 @@ def model(data , target_column):
     
     # Split the dataset into training and testing data
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
-
-    smote = SMOTE(sampling_strategy="auto", random_state=42)
-    X_train_resampled, y_train_resampled = smote.fit_resample(X_train, y_train)
     
-
     # Create an AutoSklearn classifier
     classifier = autosklearn.classification.AutoSklearnClassifier(time_left_for_this_task=30) #time_left_for_this_task=30
 
     # Fit the classifier
-    classifier.fit(X_train_resampled, y_train_resampled)
+    classifier.fit(X_train, y_train)
 
     # Predictions
     y_pred = classifier.predict(X_test)
@@ -65,7 +61,7 @@ def model(data , target_column):
     print("Classification report:")
     print(report1)
     
-    return accuracy, report, auc, classifier, macro_avg_f1, X_train_resampled, X_test, y_train_resampled, y_test
+    return accuracy, report, auc, classifier, macro_avg_f1, X_train, X_test, y_train, y_test
 
 # find model 1st rank
 
