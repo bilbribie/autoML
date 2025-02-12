@@ -43,20 +43,7 @@ def model(data , target_column):
     print("Classification report:")
     print(report1)
     
-    print(f"Processing SHAP for{target_column}")
-    explainer = shap.KernelExplainer(classifier.predict, shap.kmeans(X_train, 10))
-    shap_values = explainer.shap_values(X_test)
-    
-    # Plotting SHAP values and save in folder
-    plt.figure()
-    shap.summary_plot(shap_values, X_test, show=False)
-    
-    import matplotlib.pyplot as pl
-    pl.savefig(f'pics/{target_column}_shap.png')
-
-    print(f"saved SHAP for{target_column}")
-    
-    return accuracy, report, auc, classifier ,X_train, X_test, macro_avg_f1
+    return accuracy, report, auc, classifier, macro_avg_f1, X_train, X_test, y_train, y_test
 
 # find model 1st rank
 
@@ -73,7 +60,7 @@ def get_model(models_dict):
 
         # Extract only the model name using regex
         model_name_match = re.match(r'(\w+)\(', sklearn_regressor_str)
-        model_name = model_name_match.group(1) + "()" if model_name_match else None
+        model_name = model_name_match.group(1) if model_name_match else None
 
         return model_name, sklearn_regressor_str
 
@@ -81,21 +68,35 @@ def get_model(models_dict):
     return None, None
 
 
-# # SHAP value
-# def shap_values(model,X_train, X_test, target_column):
+# SHAP value
+def shap_values(sklearn_regressor,target_column, X_train, X_test, y_train, y_test):
+    model = sklearn_regressor
+    model.fit(X_train, y_train)
+
+    y_pred = model.predict(X_test)
+    pred_proba = model.predict_proba(X_test)[:, 1] 
+
+    accuracy = accuracy_score(y_test, y_pred)
+    report = classification_report(y_pred, y_test)
+    auc = roc_auc_score(y_test, pred_proba)  # AUC only for binary targets
+    print(f"Accuracy: {accuracy}")
+    print(f"AUC score: {auc}")
+    print("Classification report:")
+    print(report)
     
-#     print(f"Processing SHAP for{target_column}")
-#     explainer = shap.Explainer(model.predict, X_train)
-#     shap_values = explainer(X_test)
+    explainer = shap.KernelExplainer(model.predict, shap.kmeans(X_train, 10))
+    shap_values = explainer.shap_values(X_test)
     
-#     # Plotting SHAP values and save in folder
-#     plt.figure()
-#     shap.summary_plot(shap_values, X_test)
-#     plt.savefig(f'pics/{target_column}_shap.png')
-#     plt.close()
-#     print(f"saved SHAP for{target_column}")
+    # Plotting SHAP values and save in folder
+    plt.figure()
+    shap.summary_plot(shap_values, X_test, show=False)
     
-#     return 
+    import matplotlib.pyplot as pl
+    pl.savefig(f'pics/{target_column}_shap.png')
+
+    print(f"saved SHAP for{target_column}")
+    
+    return 
  
 if __name__ == "__main__":
     print("start running")
@@ -109,12 +110,12 @@ if __name__ == "__main__":
         
         # 1. model train
         data_selected = data.drop([col for col in categories if col != target_column] + ['project_name', 'Unnamed: 0'], axis=1)
-        accuracy, report, auc, classifier ,X_train, X_test, macro_avg_f1 = model(data_selected, target_column)
+        accuracy, report, auc, classifier , macro_avg_f1, X_train, X_test, y_train, y_test = model(data_selected, target_column)
         model_name, sklearn_regressor = get_model(classifier.show_models()) # get model rank 1
         print(f"The best model for {target_column} is {sklearn_regressor}")
         
         # 2. SHAP
-        # shap = shap_values(model_name, X_train, X_test, target_column)
+        shap = shap_values(sklearn_regressor,target_column, X_train, X_test, y_train, y_test)
 
         # Print results
         results.append([target_column, accuracy, auc, macro_avg_f1, sklearn_regressor])
