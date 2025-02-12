@@ -4,45 +4,30 @@ shap.initjs()
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn import metrics
 from sklearn.metrics import accuracy_score, classification_report, roc_auc_score
 from sklearn.model_selection import train_test_split
-import sklearn.metrics
-import subprocess
-import re
+from sklearn.feature_selection import SelectKBest, chi2
 from matplotlib.colors import LinearSegmentedColormap
-import subprocess
 
-# # Feature selection using SHAP
-# def select_features(data, target_column, top_n=7):
-#     """ Selects the top N most important features using SHAP. """
+# Feature selection
+def select_features_chi2(data, target_column, top_n=5):
     
-#     print(f"Selecting top {top_n} features for {target_column}...")
+    print(f"Selecting top {top_n} features for {target_column} using Chi-squared test...")
     
-#     X = data.drop(target_column, axis=1)
-#     y = data[target_column]
+    X = data.drop(target_column, axis=1)
+    y = data[target_column]
     
-#     # Train a temporary model for feature selection
-#     temp_model = autosklearn.classification.AutoSklearnClassifier(time_left_for_this_task=30)
-#     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
-#     temp_model.fit(X_train, y_train)
+    # Apply the Chi-squared test
+    chi2_selector = SelectKBest(chi2, k=top_n)
+    X_new = chi2_selector.fit_transform(X, y)
+    print(X_new)
     
-#     # Get the best model
-#     sklearn_model = get_model(temp_model.show_models())
+    # Get selected feature names
+    selected_features = X.columns[chi2_selector.get_support()].tolist()
     
-#     # Compute SHAP values
-#     explainer = shap.TreeExplainer(sklearn_model)
-#     shap_values = explainer.shap_values(X_train)
+    print(f"Selected features for {target_column}: {selected_features}")
     
-#     # Compute feature importance
-#     feature_importance = np.abs(shap_values).mean(axis=0)
-#     feature_names = X_train.columns
-    
-#     # Rank and select the top N features
-#     selected_features = feature_names[np.argsort(feature_importance)[-top_n:]].tolist()
-#     print(f"Selected features for {target_column}: {selected_features}")
-    
-#     return selected_features
+    return selected_features
 
 # run model
 def model(data , target_column):
@@ -54,7 +39,7 @@ def model(data , target_column):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
 
     # Create an AutoSklearn classifier
-    classifier = autosklearn.classification.AutoSklearnClassifier(time_left_for_this_task=600)
+    classifier = autosklearn.classification.AutoSklearnClassifier(time_left_for_this_task=30)
 
     # Fit the classifier
     classifier.fit(X_train, y_train)
@@ -142,7 +127,11 @@ if __name__ == "__main__":
         data_selected = data.drop([col for col in categories if col != target_column] + ['project_name', 'Unnamed: 0'], axis=1)
         
         # # 0 feature selection
-        # selected_features = select_features(data_selected, target_column, top_n=7)
+        # Feature selection using Chi-squared
+        selected_features = select_features_chi2(data_selected, target_column, top_n=5)
+        
+        # Use only the selected features
+        data_selected = data_selected[selected_features + [target_column]]
         
         # 1. model train
         accuracy, report, auc, classifier , macro_avg_f1, X_train, X_test, y_train, y_test = model(data_selected, target_column)
