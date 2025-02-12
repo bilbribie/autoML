@@ -47,25 +47,22 @@ def model(data , target_column):
 
 # find model 1st rank
 
+# find model 1st rank
 def get_model(models_dict):
     # Find the model with rank 1
     model_info = next((info for info in models_dict.values() if info.get('rank') == 1), None)
 
     if model_info:
         if 'sklearn_classifier' in model_info:
-            sklearn_regressor = model_info['sklearn_classifier'] #extract model name
+            sklearn_regressor = model_info['sklearn_classifier']  # Extract the actual model object
         else:
-            print("No 'sklearn_classifier'", model_info.keys())
+            print("No 'sklearn_classifier' found in model_info keys:", model_info.keys())
             return None, None
 
-        # Extract only the model name using regex
-        model_name_match = re.match(r'(\w+)\(', sklearn_regressor)
-        model_name = model_name_match.group(1) if model_name_match else None
+        return sklearn_regressor  # Return the model itself
 
-        return model_name, sklearn_regressor
-
-    print("ERROR")
-    return None, None
+    print("ERROR: No ranked model found")
+    return None
 
 
 # SHAP value
@@ -111,7 +108,7 @@ if __name__ == "__main__":
         # 1. model train
         data_selected = data.drop([col for col in categories if col != target_column] + ['project_name', 'Unnamed: 0'], axis=1)
         accuracy, report, auc, classifier , macro_avg_f1, X_train, X_test, y_train, y_test = model(data_selected, target_column)
-        model_name, sklearn_regressor = get_model(classifier.show_models()) # get model rank 1
+        sklearn_regressor = get_model(classifier.show_models()) # get model rank 1
         print(f"The best model for {target_column} is {sklearn_regressor}")
         
         # 2. SHAP
