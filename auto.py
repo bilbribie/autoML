@@ -43,6 +43,19 @@ def model(data , target_column):
     print("Classification report:")
     print(report1)
     
+    print(f"Processing SHAP for{target_column}")
+    explainer = shap.KernelExplainer(classifier.predict, shap.kmeans(X_train, 10))
+    shap_values = explainer.shap_values(X_test)
+    
+    # Plotting SHAP values and save in folder
+    plt.figure()
+    shap.summary_plot(shap_values, X_test, show=False)
+    
+    import matplotlib.pyplot as pl
+    pl.savefig(f'pics/{target_column}_shap.png')
+
+    print(f"saved SHAP for{target_column}")
+    
     return accuracy, report, auc, classifier ,X_train, X_test, macro_avg_f1
 
 # find model 1st rank
@@ -68,38 +81,22 @@ def get_model(models_dict):
     return None, None
 
 
-# SHAP value
-def shap_values(model,X_train, X_test, target_column):
+# # SHAP value
+# def shap_values(model,X_train, X_test, target_column):
     
-    print(f"Processing SHAP for{target_column}")
-    explainer = shap.Explainer(model.predict, X_train)
-    shap_values = explainer(X_test)
+#     print(f"Processing SHAP for{target_column}")
+#     explainer = shap.Explainer(model.predict, X_train)
+#     shap_values = explainer(X_test)
     
-    # Plotting SHAP values and save in folder
-    plt.figure()
-    shap.summary_plot(shap_values, X_test)
-    plt.savefig(f'pics/{target_column}_shap.png')
-    plt.close()
-    print(f"saved SHAP for{target_column}")
+#     # Plotting SHAP values and save in folder
+#     plt.figure()
+#     shap.summary_plot(shap_values, X_test)
+#     plt.savefig(f'pics/{target_column}_shap.png')
+#     plt.close()
+#     print(f"saved SHAP for{target_column}")
     
-    return 
-
-script = "auto.py"
-
-def run(cmd):
-    return subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True)
-try:
-    print("🚀 Committing and pushing changes...")
-    run("git add .")
-    run('git commit -m "Auto-update"')
-    run("git push origin main")
-    print("✅ Successfully pushed changes!")
-except subprocess.CalledProcessError as e:
-    print(f"❌ Error: {e.stderr}")
-
-
-
-   
+#     return 
+ 
 if __name__ == "__main__":
     print("start running")
     data = pd.read_csv('Dataset_Normalized copy.csv')  
@@ -128,5 +125,4 @@ if __name__ == "__main__":
     results_df.to_csv('model_results.csv', index=False)
     print("All processing complete. Results saved to model_results.csv.")
     
-    run()
     
