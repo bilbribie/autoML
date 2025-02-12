@@ -38,6 +38,9 @@ def model(data , target_column):
     # Split the dataset into training and testing data
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
 
+    print(f"X_train shape: {X_train.shape}")
+    print(f"X_test shape: {X_test.shape}")  
+
     # Create an AutoSklearn classifier
     classifier = autosklearn.classification.AutoSklearnClassifier(time_left_for_this_task=30)
 
