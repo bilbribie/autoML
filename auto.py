@@ -42,7 +42,7 @@ def model(data , target_column):
     print(f"X_test shape: {X_test.shape}")  
 
     # Create an AutoSklearn classifier
-    classifier = autosklearn.classification.AutoSklearnClassifier(time_left_for_this_task=30)
+    classifier = autosklearn.classification.AutoSklearnClassifier() #time_left_for_this_task=30
 
     # Fit the classifier
     classifier.fit(X_train, y_train)
@@ -119,6 +119,7 @@ def shap_values(sklearn_regressor,target_column, X_train, X_test, y_train, y_tes
  
 if __name__ == "__main__":
     print("start running")
+    print("\ ---------------------------------------------------------------- \n")
     data = pd.read_csv('Dataset_Normalized copy.csv')  
     categories = ["Generic policy", "Reporting mechanism", "Scope of practice", "User guideline"]
     
