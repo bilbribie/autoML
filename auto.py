@@ -10,7 +10,7 @@ from sklearn.feature_selection import SelectKBest, chi2
 from matplotlib.colors import LinearSegmentedColormap
 
 # Feature selection
-def select_features_chi2(data, target_column, top_n=5):
+def select_features_chi2(data, target_column, top_n=7):
     
     print(f"Selecting top {top_n} features for {target_column} using Chi-squared test...")
     
@@ -128,7 +128,7 @@ if __name__ == "__main__":
         
         # # 0 feature selection
         # Feature selection using Chi-squared
-        selected_features = select_features_chi2(data_selected, target_column, top_n=5)
+        selected_features = select_features_chi2(data_selected, target_column, top_n=7)
         
         # Use only the selected features
         data_selected = data_selected[selected_features + [target_column]]
