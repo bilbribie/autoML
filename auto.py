@@ -53,7 +53,7 @@ def model(data , target_column):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
 
     # Create an AutoSklearn classifier
-    classifier = autosklearn.classification.AutoSklearnClassifier(time_left_for_this_task=30)
+    classifier = autosklearn.classification.AutoSklearnClassifier(time_left_for_this_task=1200)
 
     # Fit the classifier
     classifier.fit(X_train, y_train)
