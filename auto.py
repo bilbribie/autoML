@@ -131,7 +131,7 @@ if __name__ == "__main__":
         selected_features = select_features_chi2(data_selected, target_column, top_n=7)
         
         # Use only the selected features
-        data_selected = data_selected[selected_features + [target_column]]
+        data_selected = data[selected_features + [target_column]]
         
         # 1. model train
         accuracy, report, auc, classifier , macro_avg_f1, X_train, X_test, y_train, y_test = model(data_selected, target_column)
