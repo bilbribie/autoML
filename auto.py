@@ -92,15 +92,15 @@ def shap_values(sklearn_regressor,target_column, X_train, X_test, y_train, y_tes
     model.fit(X_train, y_train)
 
     y_pred = model.predict(X_test)
-    pred_proba = model.predict_proba(X_test)[:, 1] 
+    # pred_proba = model.predict_proba(X_test)[:, 1] 
 
     accuracy = accuracy_score(y_test, y_pred)
-    report = classification_report(y_pred, y_test)
-    auc = roc_auc_score(y_test, pred_proba)  # AUC only for binary targets
+    # report = classification_report(y_pred, y_test)
+    # auc = roc_auc_score(y_test, pred_proba)  # AUC only for binary targets
     print(f"Accuracy: {accuracy}")
-    print(f"AUC score: {auc}")
-    print("Classification report:")
-    print(report)
+    # print(f"AUC score: {auc}")
+    # print("Classification report:")
+    # print(report)
     
     explainer = shap.KernelExplainer(model.predict, shap.kmeans(X_train, 10))
     shap_values = explainer.shap_values(X_test)
