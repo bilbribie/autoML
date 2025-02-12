@@ -12,6 +12,37 @@ import subprocess
 import re
 import subprocess
 
+# # Feature selection using SHAP
+# def select_features(data, target_column, top_n=7):
+#     """ Selects the top N most important features using SHAP. """
+    
+#     print(f"Selecting top {top_n} features for {target_column}...")
+    
+#     X = data.drop(target_column, axis=1)
+#     y = data[target_column]
+    
+#     # Train a temporary model for feature selection
+#     temp_model = autosklearn.classification.AutoSklearnClassifier(time_left_for_this_task=30)
+#     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
+#     temp_model.fit(X_train, y_train)
+    
+#     # Get the best model
+#     sklearn_model = get_model(temp_model.show_models())
+    
+#     # Compute SHAP values
+#     explainer = shap.TreeExplainer(sklearn_model)
+#     shap_values = explainer.shap_values(X_train)
+    
+#     # Compute feature importance
+#     feature_importance = np.abs(shap_values).mean(axis=0)
+#     feature_names = X_train.columns
+    
+#     # Rank and select the top N features
+#     selected_features = feature_names[np.argsort(feature_importance)[-top_n:]].tolist()
+#     print(f"Selected features for {target_column}: {selected_features}")
+    
+#     return selected_features
+
 # run model
 def model(data , target_column):
     
@@ -67,6 +98,7 @@ def get_model(models_dict):
 
 # SHAP value
 def shap_values(sklearn_regressor,target_column, X_train, X_test, y_train, y_test):
+    print(f"Processing SHAP for {target_column} by {sklearn_regressor}")
     model = sklearn_regressor
     model.fit(X_train, y_train)
 
@@ -105,8 +137,12 @@ if __name__ == "__main__":
     for target_column in categories:
         print(f"Processing for {target_column}")
         
-        # 1. model train
         data_selected = data.drop([col for col in categories if col != target_column] + ['project_name', 'Unnamed: 0'], axis=1)
+        
+        # # 0 feature selection
+        # selected_features = select_features(data_selected, target_column, top_n=7)
+        
+        # 1. model train
         accuracy, report, auc, classifier , macro_avg_f1, X_train, X_test, y_train, y_test = model(data_selected, target_column)
         sklearn_regressor = get_model(classifier.show_models()) # get model rank 1
         print(f"The best model for {target_column} is {sklearn_regressor}")
