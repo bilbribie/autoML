@@ -10,6 +10,7 @@ from sklearn.model_selection import train_test_split
 import sklearn.metrics
 import subprocess
 import re
+import subprocess
 
 # run model
 def model(data , target_column):
@@ -21,7 +22,7 @@ def model(data , target_column):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
 
     # Create an AutoSklearn classifier
-    classifier = autosklearn.classification.AutoSklearnClassifier()
+    classifier = autosklearn.classification.AutoSklearnClassifier(time_left_for_this_task=30)
 
     # Fit the classifier
     classifier.fit(X_train, y_train)
@@ -82,6 +83,22 @@ def shap_values(model,X_train, X_test, target_column):
     print(f"saved SHAP for{target_column}")
     
     return 
+
+script = "auto.py"
+
+def run(cmd):
+    return subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True)
+try:
+    print("🚀 Committing and pushing changes...")
+    run("git add .")
+    run('git commit -m "Auto-update"')
+    run("git push origin main")
+    print("✅ Successfully pushed changes!")
+except subprocess.CalledProcessError as e:
+    print(f"❌ Error: {e.stderr}")
+
+
+
    
 if __name__ == "__main__":
     print("start running")
@@ -110,4 +127,6 @@ if __name__ == "__main__":
     results_df = pd.DataFrame(results, columns=['Target Column', 'Accuracy', 'AUC', 'Macro Avg F1', 'Best Model'])
     results_df.to_csv('model_results.csv', index=False)
     print("All processing complete. Results saved to model_results.csv.")
+    
+    run()
     
