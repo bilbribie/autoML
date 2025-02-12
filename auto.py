@@ -142,8 +142,8 @@ if __name__ == "__main__":
         sklearn_regressor = get_model(classifier.show_models()) # get model rank 1
         print(f"The best model for {target_column} is {sklearn_regressor}")
         
-        # 2. SHAP
-        shap_values(sklearn_regressor,target_column, X_train, X_test, y_train, y_test)
+        # # 2. SHAP
+        # shap_values(sklearn_regressor,target_column, X_train, X_test, y_train, y_test)
 
         # Print results
         results.append([target_column, accuracy, auc, macro_avg_f1, sklearn_regressor])
