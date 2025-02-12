@@ -10,6 +10,7 @@ from sklearn.model_selection import train_test_split
 import sklearn.metrics
 import subprocess
 import re
+from matplotlib.colors import LinearSegmentedColormap
 import subprocess
 
 # # Feature selection using SHAP
@@ -53,7 +54,7 @@ def model(data , target_column):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
 
     # Create an AutoSklearn classifier
-    classifier = autosklearn.classification.AutoSklearnClassifier(time_left_for_this_task=1200)
+    classifier = autosklearn.classification.AutoSklearnClassifier(time_left_for_this_task=600)
 
     # Fit the classifier
     classifier.fit(X_train, y_train)
@@ -117,8 +118,9 @@ def shap_values(sklearn_regressor,target_column, X_train, X_test, y_train, y_tes
     shap_values = explainer.shap_values(X_test)
     
     # Plotting SHAP values and save in folder
+    cmap = LinearSegmentedColormap.from_list("custom", ["#f3baba", "#006C6C"])
     plt.figure()
-    shap.summary_plot(shap_values, X_test, show=False)
+    shap.summary_plot(shap_values, X_test, cmap=cmap, show=False)
     
     import matplotlib.pyplot as pl
     pl.savefig(f'pics/{target_column}_shap.png')
