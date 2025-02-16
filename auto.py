@@ -10,6 +10,18 @@ from sklearn.feature_selection import SelectKBest, chi2
 from matplotlib.colors import LinearSegmentedColormap
 from imblearn.over_sampling import SMOTE
 
+# Define feature types
+feature_types = {
+    "Project_feature": ["num_commits", "project_age_days", "num_issues", "num_pull", 
+                        "num_stargazers", "num_watchers", "num_forks", "num_subscribers", 
+                        "num_contributors", "project_size(kB)"],
+    "security_practice": ["ssf0_Binary-Artifacts", "ssf1_Branch-Protection",
+                          "ssf3_CII-Best-Practices", "ssf7_Dependency-Update-Tool",
+                          "ssf8_Fuzzing", "ssf9_License", "ssf10_Maintained", "ssf13_SAST",
+                          "ssf17_Vulnerabilities"],
+    "project_quality": ["sonarQube_BUG", "sonarQube_VULNERABILITY", "sonarQube_CODE_SMELL"],
+}
+
 # Feature selection
 def select_features_chi2(data, target_column, top_n=7):
     
@@ -123,30 +135,24 @@ if __name__ == "__main__":
     
     results = []
     
-    for target_column in categories:
-        print(f"Processing for {target_column}")
-        
-        data_selected = data.drop([col for col in categories if col != target_column] + ['project_name', 'Unnamed: 0'], axis=1)
-        
-        # # 0 feature selection
-        # Feature selection using Chi-squared
-        selected_features = select_features_chi2(data_selected, target_column, top_n=7)
-        
-        # Use only the selected features
-        data_selected = data[selected_features + [target_column]]
-        
-        # 1. model train
-        accuracy, report, auc, classifier , macro_avg_f1, X_train, X_test, y_train, y_test = model(data_selected, target_column)
-        sklearn_regressor = get_model(classifier.show_models()) # get model rank 1
-        print(f"The best model for {target_column} is {sklearn_regressor}")
-        
-        # # 2. SHAP
-        # shap_values(sklearn_regressor,target_column, X_train, X_test, y_train, y_test)
 
-        # Print results
-        results.append([target_column, accuracy, auc, macro_avg_f1, sklearn_regressor])
-        print(f"Finished processing {target_column}. Results: Accuracy={accuracy}, AUC={auc}")
-    
+    for target_column in categories:
+        for feature_set_name, feature_list in feature_types.items():
+            print(f"\nProcessing {target_column} with {feature_set_name} features...")
+
+            # Ensure only selected features + target column are used
+            selected_columns = feature_list + [target_column]
+            data_selected = data[selected_columns].dropna()  # Drop rows with missing values
+
+            # Train the model
+            accuracy, report, auc, classifier, macro_avg_f1, X_train, X_test, y_train, y_test = model(data_selected, target_column)
+            sklearn_regressor = get_model(classifier.show_models())
+
+            print(f"The best model for {target_column} ({feature_set_name}) is {sklearn_regressor}")
+
+            # Save results
+            results.append([target_column, feature_set_name, accuracy, auc, macro_avg_f1, sklearn_regressor])
+
     # Output the results
     results_df = pd.DataFrame(results, columns=['Target Column', 'Accuracy', 'AUC', 'Macro Avg F1', 'Best Model'])
     results_df.to_csv('model_results.csv', index=False)
