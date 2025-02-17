@@ -12,7 +12,7 @@ from imblearn.over_sampling import SMOTE
 
 # Define feature types
 feature_types = {
-    "Project_feature": ["num_commits", "project_age_days", "num_issues", "num_pull", 
+    "project_feature": ["num_commits", "project_age_days", "num_issues", "num_pull", 
                         "num_stargazers", "num_watchers", "num_forks", "num_subscribers", 
                         "num_contributors", "project_size(kB)"],
     "security_practice": ["ssf0_Binary-Artifacts", "ssf1_Branch-Protection",
@@ -25,25 +25,25 @@ feature_types = {
             'num_sonarQube_CODE_SMELL_LOW', 'num_sonarQube_CODE_SMELL_BLOCKER'],
 }
 
-# Feature selection
-def select_features_chi2(data, target_column, top_n=7):
+# # Feature selection
+# def select_features_chi2(data, target_column, top_n=7):
     
-    print(f"Selecting top {top_n} features for {target_column} using Chi-squared test...")
+#     print(f"Selecting top {top_n} features for {target_column} using Chi-squared test...")
     
-    X = data.drop(target_column, axis=1)
-    y = data[target_column]
+#     X = data.drop(target_column, axis=1)
+#     y = data[target_column]
     
-    # Apply the Chi-squared test
-    chi2_selector = SelectKBest(chi2, k=top_n)
-    X_new = chi2_selector.fit_transform(X, y)
-    print(X_new)
+#     # Apply the Chi-squared test
+#     chi2_selector = SelectKBest(chi2, k=top_n)
+#     X_new = chi2_selector.fit_transform(X, y)
+#     print(X_new)
     
-    # Get selected feature names
-    selected_features = X.columns[chi2_selector.get_support()].tolist()
+#     # Get selected feature names
+#     selected_features = X.columns[chi2_selector.get_support()].tolist()
     
-    print(f"Selected features for {target_column}: {selected_features}")
+#     print(f"Selected features for {target_column}: {selected_features}")
     
-    return selected_features
+#     return selected_features
 
 # run model
 def model(data , target_column):
@@ -51,8 +51,12 @@ def model(data , target_column):
     X = data.drop(target_column, axis=1)  # Features: all columns except the target
     y = data[target_column]  # Target: the column named by 'target_column'
     
+    # Handle class imbalance using SMOTE
+    smote = SMOTE()
+    X_resampled, y_resampled = smote.fit_resample(X, y)
+    
     # Split the dataset into training and testing data
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
+    X_train, X_test, y_train, y_test = train_test_split(X_resampled, y_resampled, test_size=0.3)
     
     # Create an AutoSklearn classifier
     classifier = autosklearn.classification.AutoSklearnClassifier(time_left_for_this_task=30) #time_left_for_this_task=30
@@ -69,7 +73,8 @@ def model(data , target_column):
     report = classification_report(y_pred, y_test, output_dict=True)
     report1 = classification_report(y_pred, y_test)
     macro_avg_f1 = report['macro avg']['f1-score']
-    auc = roc_auc_score(y_test, pred_proba) if len(set(y)) == 2 else "N/A"  # AUC only for binary targets
+    auc = roc_auc_score(y_test, pred_proba) if pred_proba is not None else "N/A"
+    
     print(f"Accuracy: {accuracy}")
     print(f"Macro avg: {macro_avg_f1}")
     print(f"AUC score: {auc}")
@@ -78,57 +83,53 @@ def model(data , target_column):
     
     return accuracy, report, auc, classifier, macro_avg_f1, X_train, X_test, y_train, y_test
 
-# find model 1st rank
 
 # find model 1st rank
-def get_model(models_dict):
-    # Find the model with rank 1
+def get_best_model(models_dict):
+    if not models_dict:
+        print("No valid models found. Skipping...")
+        return None
+
     model_info = next((info for info in models_dict.values() if info.get('rank') == 1), None)
 
-    if model_info:
-        if 'sklearn_classifier' in model_info:
-            sklearn_regressor = model_info['sklearn_classifier']  # Extract the actual model object
-        else:
-            print("No 'sklearn_classifier' found in model_info keys:", model_info.keys())
-            return None, None
-
-        return sklearn_regressor  # Return the model itself
-
-    print("ERROR: No ranked model found")
-    return None
+    if model_info and 'sklearn_classifier' in model_info:
+        return model_info['sklearn_classifier']
+    else:
+        print("ERROR: No ranked model found")
+        return None
 
 
-# SHAP value
-def shap_values(sklearn_regressor,target_column, X_train, X_test, y_train, y_test):
-    print(f"Processing SHAP for {target_column} by {sklearn_regressor}")
-    model = sklearn_regressor
-    model.fit(X_train, y_train)
+# # SHAP value
+# def shap_values(sklearn_regressor,target_column, X_train, X_test, y_train, y_test):
+#     print(f"Processing SHAP for {target_column} by {sklearn_regressor}")
+#     model = sklearn_regressor
+#     model.fit(X_train, y_train)
 
-    y_pred = model.predict(X_test)
-    # pred_proba = model.predict_proba(X_test)[:, 1] 
+#     y_pred = model.predict(X_test)
+#     # pred_proba = model.predict_proba(X_test)[:, 1] 
 
-    accuracy = accuracy_score(y_test, y_pred)
-    # report = classification_report(y_pred, y_test)
-    # auc = roc_auc_score(y_test, pred_proba)  # AUC only for binary targets
-    print(f"Accuracy: {accuracy}")
-    # print(f"AUC score: {auc}")
-    # print("Classification report:")
-    # print(report)
+#     accuracy = accuracy_score(y_test, y_pred)
+#     # report = classification_report(y_pred, y_test)
+#     # auc = roc_auc_score(y_test, pred_proba)  # AUC only for binary targets
+#     print(f"Accuracy: {accuracy}")
+#     # print(f"AUC score: {auc}")
+#     # print("Classification report:")
+#     # print(report)
     
-    explainer = shap.KernelExplainer(model.predict, shap.kmeans(X_train, 10))
-    shap_values = explainer.shap_values(X_test)
+#     explainer = shap.KernelExplainer(model.predict, shap.kmeans(X_train, 10))
+#     shap_values = explainer.shap_values(X_test)
     
-    # Plotting SHAP values and save in folder
-    cmap = LinearSegmentedColormap.from_list("custom", ["#f3baba", "#006C6C"])
-    plt.figure()
-    shap.summary_plot(shap_values, X_test, cmap=cmap, show=False)
+#     # Plotting SHAP values and save in folder
+#     cmap = LinearSegmentedColormap.from_list("custom", ["#f3baba", "#006C6C"])
+#     plt.figure()
+#     shap.summary_plot(shap_values, X_test, cmap=cmap, show=False)
     
-    import matplotlib.pyplot as pl
-    pl.savefig(f'pics/{target_column}_shap.png')
+#     import matplotlib.pyplot as pl
+#     pl.savefig(f'pics/{target_column}_shap.png')
 
-    print(f"saved SHAP for{target_column}")
+#     print(f"saved SHAP for{target_column}")
     
-    return 
+#     return 
  
 if __name__ == "__main__":
     print("start running")
@@ -149,7 +150,9 @@ if __name__ == "__main__":
 
             # Train the model
             accuracy, report, auc, classifier, macro_avg_f1, X_train, X_test, y_train, y_test = model(data_selected, target_column)
-            sklearn_regressor = get_model(classifier.show_models())
+            
+            models_dict = classifier.show_models()
+            sklearn_regressor = get_best_model(models_dict)
 
             print(f"The best model for {target_column} ({feature_set_name}) is {sklearn_regressor}")
 
