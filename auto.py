@@ -19,7 +19,10 @@ feature_types = {
                           "ssf3_CII-Best-Practices", "ssf7_Dependency-Update-Tool",
                           "ssf8_Fuzzing", "ssf9_License", "ssf10_Maintained", "ssf13_SAST",
                           "ssf17_Vulnerabilities"],
-    "project_quality": ["sonarQube_BUG", "sonarQube_VULNERABILITY", "sonarQube_CODE_SMELL"],
+    "project_quality": ['num_sonarQube_BUG_HIGH', 'num_sonarQube_BUG_MEDIUM', 'num_sonarQube_BUG_LOW', 'num_sonarQube_BUG_BLOCKER',
+            'num_sonarQube_VULNERABILITY_HIGH', 'num_sonarQube_VULNERABILITY_MEDIUM', 'num_sonarQube_VULNERABILITY_LOW',
+            'num_sonarQube_VULNERABILITY_BLOCKER', 'num_sonarQube_CODE_SMELL_HIGH', 'num_sonarQube_CODE_SMELL_MEDIUM',
+            'num_sonarQube_CODE_SMELL_LOW', 'num_sonarQube_CODE_SMELL_BLOCKER'],
 }
 
 # Feature selection
@@ -52,7 +55,7 @@ def model(data , target_column):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
     
     # Create an AutoSklearn classifier
-    classifier = autosklearn.classification.AutoSklearnClassifier(time_left_for_this_task=30) #time_left_for_this_task=30
+    classifier = autosklearn.classification.AutoSklearnClassifier(time_left_for_this_task=10) #time_left_for_this_task=30
 
     # Fit the classifier
     classifier.fit(X_train, y_train)
@@ -130,7 +133,7 @@ def shap_values(sklearn_regressor,target_column, X_train, X_test, y_train, y_tes
 if __name__ == "__main__":
     print("start running")
     print("\ ---------------------------------------------------------------- \n")
-    data = pd.read_csv('Dataset_Normalized copy.csv')  
+    data = pd.read_csv('Dataset_Normalized.csv')  
     categories = ["Generic policy", "Reporting mechanism", "Scope of practice", "User guideline"]
     
     results = []
