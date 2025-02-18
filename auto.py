@@ -72,7 +72,7 @@ def model(feature , target_column):
     print("Classification report:")
     print(report1)
     
-    return accuracy, report, auc, macro_avg_f1, classifier
+    return accuracy, auc, macro_avg_f1, classifier
 
 # find model 1st rank
 def get_best_model(models_dict):
