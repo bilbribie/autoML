@@ -90,14 +90,17 @@ def get_best_model(models_dict):
         print("No valid models found. Skipping...")
         return None
 
-    model_info = next((info for info in models_dict.values() if info.get('rank') == 1), None)
+    print(f"Available model keys: {list(models_dict.keys())}")
 
-    if model_info and 'sklearn_classifier' in model_info:
-        return model_info['sklearn_classifier']
-    else:
-        print("ERROR: No ranked model found")
-        return None
+    for model_id, model_info in models_dict.items():
+        if 'rank' in model_info and model_info['rank'] == 1:
+            if 'sklearn_classifier' in model_info:
+                return model_info['sklearn_classifier']
+            else:
+                print(f"Model {model_id} has no 'sklearn_classifier' key.")
 
+    print("ERROR: No ranked model found")
+    return None
 
 # # SHAP value
 # def shap_values(sklearn_regressor,target_column, X_train, X_test, y_train, y_test):
