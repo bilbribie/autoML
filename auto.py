@@ -31,6 +31,8 @@ def select_top_features(features):
     shap_importance_scores = {feature: np.random.rand() for feature in features}
     sorted_features = sorted(shap_importance_scores.items(), key=lambda x: x[1], reverse=True)[:5]
     top_features = [f[0] for f in sorted_features]
+
+    print(top_features)
     return top_features
 
 
