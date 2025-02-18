@@ -32,7 +32,7 @@ def select_top_features(features):
     sorted_features = sorted(shap_importance_scores.items(), key=lambda x: x[1], reverse=True)[:5]
     top_features = [f[0] for f in sorted_features]
 
-    print(top_features)
+    print(f"top 5 features are {top_features}")
     return top_features
 
 
@@ -72,8 +72,7 @@ def model(feature , target_column):
     print("Classification report:")
     print(report1)
     
-    return accuracy, report, auc, classifier, macro_avg_f1, X_train, X_test, y_train, y_test
-
+    return accuracy, report, auc, macro_avg_f1, classifier
 
 # find model 1st rank
 def get_best_model(models_dict):
