@@ -98,7 +98,7 @@ if __name__ == "__main__":
             selected_features = select_top_features(features)
             
             # Train the model
-            accuracy, auc, macro_avg_f1, classifier = model(selected_features , target_column)
+            accuracy, auc, macro_avg_f1, classifier = model(data[selected_features], target_column)
             
             models_dict = classifier.show_models()
             sklearn_regressor = get_best_model(models_dict)
