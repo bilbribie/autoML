@@ -9,6 +9,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.feature_selection import SelectKBest, chi2
 from matplotlib.colors import LinearSegmentedColormap
 from imblearn.over_sampling import SMOTE
+import time 
 
 # Define feature types
 feature_types = {
@@ -50,7 +51,7 @@ def model(feature , target_column):
     X_train, X_test, y_train, y_test = train_test_split(X_resampled, y_resampled, test_size=0.3)
     
     # Create an AutoSklearn classifier
-    classifier = autosklearn.classification.AutoSklearnClassifier() #time_left_for_this_task=30
+    classifier = autosklearn.classification.AutoSklearnClassifier(time_left_for_this_task=30) #time_left_for_this_task=30
 
     # Fit the classifier
     classifier.fit(X_train, y_train)
@@ -84,6 +85,7 @@ def get_best_model(models_dict):
     return None
 
 if __name__ == "__main__":
+    start_time = time.time() 
     print("start running")
     print("\ ---------------------------------------------------------------- \n")
     data = pd.read_csv('Dataset_normalized.csv')  
@@ -113,5 +115,9 @@ if __name__ == "__main__":
     results_df = pd.DataFrame(results, columns=['Target Column', 'feature_types', 'selected_features', 'Accuracy', 'AUC', 'Macro Avg F1', 'Best Model'])
     results_df.to_csv('model_results.csv', index=False)
     print("All processing complete. Results saved to model_results.csv.")
+    
+    end_time = time.time()  # End timer
+    elapsed_time = end_time - start_time  # Calculate total time
+    print(f"Total execution time: {elapsed_time:.2f} seconds")
     
     
