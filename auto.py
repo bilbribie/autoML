@@ -108,8 +108,10 @@ def get_best_model(models_dict):
 
 # SHAP
 def shap(target_column, feature_set_name, model, X_train, X_test, y_train, y_test, X):
+    print(type(shap))
     # explainer 
-    explainer = shap.KernelExplainer(model.predict, shap.kmeans(X_train, 10))
+    explainer = shap.KernelExplainer(model.predict, shap.sample(X_train, 10))
+    # explainer = shap.KernelExplainer(model.predict, shap.kmeans(X_train, 10))
     shap_values = explainer.shap_values(X_test)
     
     # summary plot
