@@ -85,7 +85,9 @@ def model(feature , target_column, feature_set_name):
     print(report1)
     
     # save for check
-    classifier.to_csv(f"results/dataset/{target_column}_{feature_set_name}_classifier.csv", index=False)
+    params = classifier.get_params()
+    params_df = pd.DataFrame([params])  # Convert to DataFrame
+    params_df.to_csv(f"results/dataset/{target_column}_{feature_set_name}_classifier_params.csv", index=False)
 
     print("classifier saved to csv")
     
