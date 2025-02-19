@@ -151,7 +151,7 @@ if __name__ == "__main__":
             selected_features = select_top_features(features)
             
             # 2. Train the model
-            accuracy, auc, macro_avg_f1, classifier, X_train, X_test, y_train, y_test = model(data[selected_features], target_column, feature_set_name)
+            accuracy, auc, macro_avg_f1, classifier, X_train, X_test, y_train, y_test, X = model(data[selected_features], target_column, feature_set_name)
             
             # 3. 
             models_dict = classifier.show_models()
