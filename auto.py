@@ -53,8 +53,7 @@ def model(feature , target_column):
     # Create an AutoSklearn classifier
     classifier = autosklearn.classification.AutoSklearnClassifier(
         time_left_for_this_task=1800,  # 30 minutes (1800 seconds)
-        per_run_time_limit=300,        # 5 minutes per model training (adjust as needed)
-        n_jobs=-1                     # Use all available CPU cores
+        per_run_time_limit=300        # 5 minutes per model training (adjust as needed)
         ) 
         #time_left_for_this_task=30, per_run_time_limit=10
 
