@@ -38,7 +38,7 @@ def select_top_features(features):
 
 
 # run model
-def model(feature , target_column):
+def model(feature , target_column, feature_set_name):
     
     X = feature
     y = data[target_column]  # Target: the column named by 'target_column'
@@ -50,10 +50,17 @@ def model(feature , target_column):
     # Split the dataset into training and testing data
     X_train, X_test, y_train, y_test = train_test_split(X_resampled, y_resampled, test_size=0.3)
     
+    # save for check
+    X_train.to_csv(f"dataset/{target_column}_{feature_set_name}_X_train.csv", index=False)
+    X_test.to_csv(f"dataset/{target_column}_{feature_set_name}_X_test.csv", index=False)
+    y_train.to_csv(f"dataset/{target_column}_{feature_set_name}_y_train.csv", index=False)
+    y_test.to_csv(f"dataset/{target_column}_{feature_set_name}_y_test.csv", index=False)
+    print("train_test_split saved to csv")
+    
     # Create an AutoSklearn classifier
     classifier = autosklearn.classification.AutoSklearnClassifier(
-        time_left_for_this_task=900,  # 30 minutes (1800 seconds)
-        per_run_time_limit=100        # 5 minutes per model training (adjust as needed)
+        time_left_for_this_task=30,  # 30 minutes (1800 seconds)
+        per_run_time_limit=10        # 5 minutes per model training (adjust as needed)
         ) 
         #time_left_for_this_task=30, per_run_time_limit=10
 
@@ -105,7 +112,7 @@ if __name__ == "__main__":
             selected_features = select_top_features(features)
             
             # Train the model
-            accuracy, auc, macro_avg_f1, classifier = model(data[selected_features], target_column)
+            accuracy, auc, macro_avg_f1, classifier = model(data[selected_features], target_column, feature_set_name)
             
             models_dict = classifier.show_models()
             sklearn_regressor = get_best_model(models_dict)
