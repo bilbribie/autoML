@@ -106,39 +106,39 @@ def get_best_model(models_dict):
             return best_model
     return None
 
-# SHAP
-def shap(target_column, feature_set_name, model, X_train, X_test, y_train, y_test, X):
-    print("shap type:", type(shap)) 
+# # SHAP
+# def shap(target_column, feature_set_name, model, X_train, X_test, y_train, y_test, X):
+#     print("shap type:", type(shap)) 
 
-    # explainer 
-    explainer = shap.KernelExplainer(model.predict, shap.sample(X_train, 10))
-    # explainer = shap.KernelExplainer(model.predict, shap.kmeans(X_train, 10))
-    shap_values = explainer.shap_values(X_test)
+#     # explainer 
+#     explainer = shap.KernelExplainer(model.predict, shap.sample(X_train, 10))
+#     # explainer = shap.KernelExplainer(model.predict, shap.kmeans(X_train, 10))
+#     shap_values = explainer.shap_values(X_test)
     
-    # summary plot
-    shap.summary_plot(shap_values, X_test)
-    # summary.save(f"results/pics/{target_column}_{feature_set_name}_summary.png")
-    plt.savefig(f"results/pics/{target_column}_{feature_set_name}_summary.png", bbox_inches="tight", dpi=300)  # Save the figure
-    plt.close()
+#     # summary plot
+#     shap.summary_plot(shap_values, X_test)
+#     # summary.save(f"results/pics/{target_column}_{feature_set_name}_summary.png")
+#     plt.savefig(f"results/pics/{target_column}_{feature_set_name}_summary.png", bbox_inches="tight", dpi=300)  # Save the figure
+#     plt.close()
     
-    # Convert to Explanation object (for single-output models) for bar and waterfall
-    shap_values_exp = shap.Explanation(values=np.array(shap_values), feature_names=X_test.columns)
+#     # Convert to Explanation object (for single-output models) for bar and waterfall
+#     shap_values_exp = shap.Explanation(values=np.array(shap_values), feature_names=X_test.columns)
 
-    # bar plot
-    shap.plots.bar(shap_values_exp, max_display=12 )
-    # bar.save(f"results/pics/{target_column}_{feature_set_name}_bar.png")
-    plt.savefig(f"results/pics/{target_column}_{feature_set_name}_bar.png", bbox_inches="tight", dpi=300)  # Save the figure
-    plt.close()
+#     # bar plot
+#     shap.plots.bar(shap_values_exp, max_display=12 )
+#     # bar.save(f"results/pics/{target_column}_{feature_set_name}_bar.png")
+#     plt.savefig(f"results/pics/{target_column}_{feature_set_name}_bar.png", bbox_inches="tight", dpi=300)  # Save the figure
+#     plt.close()
     
-    # waterfall
-    idx = 9
-    sv = explainer.shap_values(X.loc[[5]]) 
-    exp = Explanation(sv,explainer.expected_value, data=X.loc[[idx]].values, feature_names=X.columns)
-    waterfall(exp[0])
-    plt.savefig(f"results/pics/{target_column}_{feature_set_name}_waterfall.png", bbox_inches="tight", dpi=300)  # Save the figure
-    plt.close()
+#     # waterfall
+#     idx = 9
+#     sv = explainer.shap_values(X.loc[[5]]) 
+#     exp = Explanation(sv,explainer.expected_value, data=X.loc[[idx]].values, feature_names=X.columns)
+#     waterfall(exp[0])
+#     plt.savefig(f"results/pics/{target_column}_{feature_set_name}_waterfall.png", bbox_inches="tight", dpi=300)  # Save the figure
+#     plt.close()
     
-    return
+#     return
 
 if __name__ == "__main__":
     start_time = time.time() 
@@ -164,7 +164,7 @@ if __name__ == "__main__":
             sklearn_regressor = get_best_model(models_dict)
 
             # 4. SHAP
-            shap(target_column, feature_set_name, sklearn_regressor, X_train, X_test, y_train, y_test, X)
+            # shap(target_column, feature_set_name, sklearn_regressor, X_train, X_test, y_train, y_test, X)
             
             print(f"The best model for {target_column} ({feature_set_name}) is {sklearn_regressor}")
 
