@@ -51,7 +51,12 @@ def model(feature , target_column):
     X_train, X_test, y_train, y_test = train_test_split(X_resampled, y_resampled, test_size=0.3)
     
     # Create an AutoSklearn classifier
-    classifier = autosklearn.classification.AutoSklearnClassifier() #time_left_for_this_task=30
+    classifier = autosklearn.classification.AutoSklearnClassifier(
+        time_left_for_this_task=1800,  # 30 minutes (1800 seconds)
+        per_run_time_limit=300,        # 5 minutes per model training (adjust as needed)
+        n_jobs=-1                     # Use all available CPU cores
+        ) 
+        #time_left_for_this_task=30, per_run_time_limit=10
 
     # Fit the classifier
     classifier.fit(X_train, y_train)
