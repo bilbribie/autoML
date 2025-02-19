@@ -1,5 +1,6 @@
 import autosklearn.classification
-import shap
+from shap import KernelExplainer, Explanation
+from shap.plots import waterfall
 shap.initjs()
 import pandas as pd
 import numpy as np
@@ -36,7 +37,6 @@ def select_top_features(features):
     print(f"top 5 features are {top_features}")
     return top_features
 
-
 # run model
 def model(feature , target_column, feature_set_name):
     
@@ -51,10 +51,10 @@ def model(feature , target_column, feature_set_name):
     X_train, X_test, y_train, y_test = train_test_split(X_resampled, y_resampled, test_size=0.3)
     
     # save for check
-    X_train.to_csv(f"dataset/{target_column}_{feature_set_name}_X_train.csv", index=False)
-    X_test.to_csv(f"dataset/{target_column}_{feature_set_name}_X_test.csv", index=False)
-    y_train.to_csv(f"dataset/{target_column}_{feature_set_name}_y_train.csv", index=False)
-    y_test.to_csv(f"dataset/{target_column}_{feature_set_name}_y_test.csv", index=False)
+    X_train.to_csv(f"results/dataset/{target_column}_{feature_set_name}_X_train.csv", index=False)
+    X_test.to_csv(f"results/dataset/{target_column}_{feature_set_name}_X_test.csv", index=False)
+    y_train.to_csv(f"results/dataset/{target_column}_{feature_set_name}_y_train.csv", index=False)
+    y_test.to_csv(f"results/dataset/{target_column}_{feature_set_name}_y_test.csv", index=False)
     print("train_test_split saved to csv")
     
     # Create an AutoSklearn classifier
@@ -84,7 +84,12 @@ def model(feature , target_column, feature_set_name):
     print("Classification report:")
     print(report1)
     
-    return accuracy, auc, macro_avg_f1, classifier
+    # save for check
+    classifier.to_csv(f"results/dataset/{target_column}_{feature_set_name}_classifier.csv", index=False)
+
+    print("classifier saved to csv")
+    
+    return accuracy, auc, macro_avg_f1, classifier, X_train, X_test, y_train, y_test, X
 
 # find model 1st rank
 def get_best_model(models_dict):
@@ -92,8 +97,42 @@ def get_best_model(models_dict):
         return None
     for model_info in models_dict.values():
         if model_info.get('rank') == 1:
-            return model_info.get('sklearn_classifier', None)
+            best_model = model_info.get('sklearn_classifier', None)
+            
+            print(best_model)
+            return best_model
     return None
+
+# SHAP
+def shap(target_column, feature_set_name, model, X_train, X_test, y_train, y_test, X):
+    # explainer 
+    explainer = shap.KernelExplainer(model.predict, shap.kmeans(X_train, 10))
+    shap_values = explainer.shap_values(X_test)
+    
+    # summary plot
+    shap.summary_plot(shap_values, X_test)
+    # summary.save(f"results/pics/{target_column}_{feature_set_name}_summary.png")
+    plt.savefig(f"results/pics/{target_column}_{feature_set_name}_summary.png", bbox_inches="tight", dpi=300)  # Save the figure
+    plt.close()
+    
+    # Convert to Explanation object (for single-output models) for bar and waterfall
+    shap_values_exp = shap.Explanation(values=np.array(shap_values), feature_names=X_test.columns)
+
+    # bar plot
+    shap.plots.bar(shap_values_exp, max_display=12 )
+    # bar.save(f"results/pics/{target_column}_{feature_set_name}_bar.png")
+    plt.savefig(f"results/pics/{target_column}_{feature_set_name}_bar.png", bbox_inches="tight", dpi=300)  # Save the figure
+    plt.close()
+    
+    # waterfall
+    idx = 9
+    sv = explainer.shap_values(X.loc[[5]]) 
+    exp = Explanation(sv,explainer.expected_value, data=X.loc[[idx]].values, feature_names=X.columns)
+    waterfall(exp[0])
+    plt.savefig(f"results/pics/{target_column}_{feature_set_name}_waterfall.png", bbox_inches="tight", dpi=300)  # Save the figure
+    plt.close()
+    
+    return
 
 if __name__ == "__main__":
     start_time = time.time() 
@@ -108,15 +147,19 @@ if __name__ == "__main__":
         for feature_set_name, features in feature_types.items():
             print(f"\nProcessing {target_column} with {feature_set_name} features...")
 
-            #feature selection
+            # 1. feature selection
             selected_features = select_top_features(features)
             
-            # Train the model
-            accuracy, auc, macro_avg_f1, classifier = model(data[selected_features], target_column, feature_set_name)
+            # 2. Train the model
+            accuracy, auc, macro_avg_f1, classifier, X_train, X_test, y_train, y_test = model(data[selected_features], target_column, feature_set_name)
             
+            # 3. 
             models_dict = classifier.show_models()
             sklearn_regressor = get_best_model(models_dict)
 
+            # 4. SHAP
+            shap(target_column, feature_set_name, sklearn_regressor, X_train, X_test, y_train, y_test, X)
+            
             print(f"The best model for {target_column} ({feature_set_name}) is {sklearn_regressor}")
 
             # Save results
@@ -124,7 +167,7 @@ if __name__ == "__main__":
 
     # Output the results
     results_df = pd.DataFrame(results, columns=['Target Column', 'feature_types', 'selected_features', 'Accuracy', 'AUC', 'Macro Avg F1', 'Best Model'])
-    results_df.to_csv('model_results.csv', index=False)
+    results_df.to_csv('results/model_results.csv', index=False)
     print("All processing complete. Results saved to model_results.csv.")
     
     end_time = time.time()  # End timer
