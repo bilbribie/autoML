@@ -1,7 +1,7 @@
 import autosklearn.classification
 from shap import KernelExplainer, Explanation
 from shap.plots import waterfall
-shap.initjs()
+# shap.initjs()
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
