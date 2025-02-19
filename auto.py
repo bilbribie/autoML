@@ -1,5 +1,6 @@
 import autosklearn.classification
-from shap import KernelExplainer, Explanation
+import shap
+from shap import Explanation
 from shap.plots import waterfall
 # shap.initjs()
 import pandas as pd
