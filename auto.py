@@ -23,13 +23,14 @@ feature_types = {
 categories = ["Generic policy", "Reporting mechanism", "Scope of practice", "User guideline"]
 
 def select_top_features(features, target_column):
+    print(f"find top  5 feature important for {features}")
     X = features
     y = target_column
 
     # Use SelectKBest with chi2 to select top features
     selector = SelectKBest(chi2, k=2)
     top_features = selector.fit_transform(X, y)
-    
+
     print(top_features)
 
     return top_features
