@@ -1,15 +1,8 @@
 import autosklearn.classification
-import shap
-from shap import Explanation
-from shap.plots import waterfall
-# shap.initjs()
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score, classification_report, roc_auc_score
 from sklearn.model_selection import train_test_split
 from sklearn.feature_selection import SelectKBest, chi2
-from matplotlib.colors import LinearSegmentedColormap
 from imblearn.over_sampling import SMOTE
 import time 
 
@@ -29,13 +22,16 @@ feature_types = {
 }
 categories = ["Generic policy", "Reporting mechanism", "Scope of practice", "User guideline"]
 
-def select_top_features(features):
-    np.random.seed(42)
-    shap_importance_scores = {feature: np.random.rand() for feature in features}
-    sorted_features = sorted(shap_importance_scores.items(), key=lambda x: x[1], reverse=True)[:5]
-    top_features = [f[0] for f in sorted_features]
+def select_top_features(features, target_column):
+    X = features
+    y = target_column
 
-    print(f"top 5 features are {top_features}")
+    # Use SelectKBest with chi2 to select top features
+    selector = SelectKBest(chi2, k=2)
+    top_features = selector.fit_transform(X, y)
+    
+    print(top_features)
+
     return top_features
 
 # run model
@@ -60,8 +56,8 @@ def model(feature , target_column, feature_set_name):
     
     # Create an AutoSklearn classifier
     classifier = autosklearn.classification.AutoSklearnClassifier(
-        time_left_for_this_task=1800 ,  # 30 minutes (1800 seconds)
-        per_run_time_limit=300        # 5 minutes per model training (300)
+        time_left_for_this_task=120 ,  # 30 minutes (1800 seconds)
+        per_run_time_limit=30        # 5 minutes per model training (300)
         ) 
         #time_left_for_this_task=30, per_run_time_limit=10
 
@@ -85,12 +81,12 @@ def model(feature , target_column, feature_set_name):
     print("Classification report:")
     print(report1)
     
-    # save for check
-    params = classifier.get_params()
-    params_df = pd.DataFrame([params])  # Convert to DataFrame
-    params_df.to_csv(f"results/dataset/{target_column}_{feature_set_name}_classifier_params.csv", index=False)
+    # # save for check
+    # params = classifier.show()
+    # params_df = pd.DataFrame([params])  # Convert to DataFrame
+    # params_df.to_csv(f"results/dataset/{target_column}_{feature_set_name}_classifier_params.csv", index=False)
 
-    print("classifier saved to csv")
+    # print("classifier saved to csv")
     
     return accuracy, auc, macro_avg_f1, classifier, X_train, X_test, y_train, y_test, X
 
@@ -106,39 +102,6 @@ def get_best_model(models_dict):
             return best_model
     return None
 
-# # SHAP
-# def shap(target_column, feature_set_name, model, X_train, X_test, y_train, y_test, X):
-#     print("shap type:", type(shap)) 
-
-#     # explainer 
-#     explainer = shap.KernelExplainer(model.predict, shap.sample(X_train, 10))
-#     # explainer = shap.KernelExplainer(model.predict, shap.kmeans(X_train, 10))
-#     shap_values = explainer.shap_values(X_test)
-    
-#     # summary plot
-#     shap.summary_plot(shap_values, X_test)
-#     # summary.save(f"results/pics/{target_column}_{feature_set_name}_summary.png")
-#     plt.savefig(f"results/pics/{target_column}_{feature_set_name}_summary.png", bbox_inches="tight", dpi=300)  # Save the figure
-#     plt.close()
-    
-#     # Convert to Explanation object (for single-output models) for bar and waterfall
-#     shap_values_exp = shap.Explanation(values=np.array(shap_values), feature_names=X_test.columns)
-
-#     # bar plot
-#     shap.plots.bar(shap_values_exp, max_display=12 )
-#     # bar.save(f"results/pics/{target_column}_{feature_set_name}_bar.png")
-#     plt.savefig(f"results/pics/{target_column}_{feature_set_name}_bar.png", bbox_inches="tight", dpi=300)  # Save the figure
-#     plt.close()
-    
-#     # waterfall
-#     idx = 9
-#     sv = explainer.shap_values(X.loc[[5]]) 
-#     exp = Explanation(sv,explainer.expected_value, data=X.loc[[idx]].values, feature_names=X.columns)
-#     waterfall(exp[0])
-#     plt.savefig(f"results/pics/{target_column}_{feature_set_name}_waterfall.png", bbox_inches="tight", dpi=300)  # Save the figure
-#     plt.close()
-    
-#     return
 
 if __name__ == "__main__":
     start_time = time.time() 
@@ -154,7 +117,7 @@ if __name__ == "__main__":
             print(f"\nProcessing {target_column} with {feature_set_name} features...")
 
             # 1. feature selection
-            selected_features = select_top_features(features)
+            selected_features = select_top_features(features, target_column)
             
             # 2. Train the model
             accuracy, auc, macro_avg_f1, classifier, X_train, X_test, y_train, y_test, X = model(data[selected_features], target_column, feature_set_name)
@@ -163,9 +126,6 @@ if __name__ == "__main__":
             models_dict = classifier.show_models()
             sklearn_regressor = get_best_model(models_dict)
 
-            # 4. SHAP
-            # shap(target_column, feature_set_name, sklearn_regressor, X_train, X_test, y_train, y_test, X)
-            
             print(f"finish: The best model for {target_column} ({feature_set_name}) is {sklearn_regressor}")
 
             # Save results
