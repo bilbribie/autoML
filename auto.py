@@ -60,8 +60,8 @@ def model(feature , target_column, feature_set_name):
     
     # Create an AutoSklearn classifier
     classifier = autosklearn.classification.AutoSklearnClassifier(
-        time_left_for_this_task=30 ,  # 30 minutes (1800 seconds)
-        per_run_time_limit=10        # 5 minutes per model training (300)
+        time_left_for_this_task=3600 ,  # 30 minutes (1800 seconds)
+        per_run_time_limit=300        # 5 minutes per model training (300)
         ) 
         #time_left_for_this_task=30, per_run_time_limit=10
 
