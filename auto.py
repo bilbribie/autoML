@@ -22,8 +22,8 @@ feature_types = {
 }
 categories = ["Generic policy", "Reporting mechanism", "Scope of practice", "User guideline"]
 
-def select_top_features(features, target_column):
-    print(f"Finding top 5 important features for {features}")
+def select_top_features(features, target_column, features_list):
+    print(f"Finding top 5 important features for {features_list}")
     X = features  # This should be a DataFrame with numeric values
     y = target_column  # Target column
 
@@ -60,8 +60,8 @@ def model(feature , target_column, feature_set_name):
     
     # Create an AutoSklearn classifier
     classifier = autosklearn.classification.AutoSklearnClassifier(
-        time_left_for_this_task=60 ,  # 30 minutes (1800 seconds)
-        per_run_time_limit=30        # 5 minutes per model training (300)
+        time_left_for_this_task=30 ,  # 30 minutes (1800 seconds)
+        per_run_time_limit=10        # 5 minutes per model training (300)
         ) 
         #time_left_for_this_task=30, per_run_time_limit=10
 
@@ -121,7 +121,7 @@ if __name__ == "__main__":
             print(f"\nProcessing {target_column} with {feature_set_name} features...")
 
             # 1. feature selection
-            selected_features = select_top_features(data[features], data[target_column])
+            selected_features = select_top_features(data[features], data[target_column], features)
             
             # 2. Train the model
             accuracy, auc, macro_avg_f1, classifier, X_train, X_test, y_train, y_test, X = model(data[selected_features], target_column, feature_set_name)
