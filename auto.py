@@ -23,15 +23,18 @@ feature_types = {
 categories = ["Generic policy", "Reporting mechanism", "Scope of practice", "User guideline"]
 
 def select_top_features(features, target_column):
-    print(f"find top  5 feature important for {features}")
-    X = features
-    y = target_column
+    print(f"Finding top 5 important features for {target_column}")
+    X = features  # This should be a DataFrame with numeric values
+    y = target_column  # Target column
 
     # Use SelectKBest with chi2 to select top features
-    selector = SelectKBest(chi2, k=2)
-    top_features = selector.fit_transform(X, y)
+    selector = SelectKBest(chi2, k=min(5, X.shape[1]))  # Select up to 5 or max available
+    selector.fit(X, y)
 
-    print(top_features)
+    # Get selected feature names
+    top_features = X.columns[selector.get_support()].tolist()
+
+    print(f"Selected features: {top_features}")
 
     return top_features
 
@@ -118,7 +121,7 @@ if __name__ == "__main__":
             print(f"\nProcessing {target_column} with {feature_set_name} features...")
 
             # 1. feature selection
-            selected_features = select_top_features(features, target_column)
+            selected_features = select_top_features(data[features], data[target_column])
             
             # 2. Train the model
             accuracy, auc, macro_avg_f1, classifier, X_train, X_test, y_train, y_test, X = model(data[selected_features], target_column, feature_set_name)
